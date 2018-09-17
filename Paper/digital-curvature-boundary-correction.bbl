@@ -26,6 +26,11 @@ El-Zehiry, N.Y., Grady, L.: Fast global optimization of curvature. In: 2010
 Kolmogorov, V., Rother, C.: Minimizing non-submodular functions with graph cuts
   - a review. vol.~29 (January 2007)
 
+\bibitem{lachaud07}
+Lachaud, J.O., Vialard, A., de~Vieilleville, F.: Fast, accurate and convergent
+  tangent estimation on digital contours. Image Vision Comput.
+  \textbf{25}(10),  1572--1587 (Oct 2007)
+
 \bibitem{manay04}
 Manay, S., Hong, B.W., Yezzi, A.J., Soatto, S.: Integral invariant signatures.
   In: Pajdla, T., Matas, J. (eds.) Computer Vision - ECCV 2004. pp. 87--99.
@@ -45,6 +50,16 @@ Nieuwenhuis, C., Toeppe, E., Gorelick, L., Veksler, O., Boykov, Y.: Efficient
 Pottmann, H., Wallner, J., Huang, Q.X., Yang, Y.L.: Integral invariants for
   robust geometry processing. Computer Aided Geometric Design  \textbf{26}(1),
   37 -- 60 (2009)
+
+\bibitem{rother04}
+Rother, C., Kolmogorov, V., Blake, A.: "grabcut": Interactive foreground
+  extraction using iterated graph cuts. ACM Trans. Graph.  \textbf{23}(3),
+  309--314 (Aug 2004)
+
+\bibitem{rother07}
+Rother, C., Kolmogorov, V., Lempitsky, V.S., Szummer, M.: Optimizing binary
+  mrfs via extended roof duality. 2007 IEEE Conference on Computer Vision and
+  Pattern Recognition pp.~1--8 (2007)
 
 \bibitem{schoenemann09}
 Schoenemann, T., Kahl, F., Cremers, D.: Curvature regularity for region-based
