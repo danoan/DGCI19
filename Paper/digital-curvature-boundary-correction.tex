@@ -21,7 +21,7 @@
 
 \begin{document}
 %
-\title{Digital Curvature Boundary Correction\thanks{This  work has  been  partly  funded by CoMeDiC ANR-15-CE40-0006 research grant.}}
+\title{Digital Curvature Boundary Evolution Model for Image Segmentation\thanks{This  work has  been  partly  funded by CoMeDiC ANR-15-CE40-0006 research grant.}}
 
 \author{Daniel Antunes\inst{1}
 Jacques-Olivier Lachaud\inst{1}
@@ -39,22 +39,27 @@ CentraleSupelec Université Paris-Saclay\\
 \maketitle              % typeset the header of the contribution
 %
 \begin{abstract}
-Recent works indicate the potential of curvature as a regularizer in image segmentation, in particular for the class of thin and elongated objects, ubiquitous in medical imagery, in which length regularization performs badly. Howerver, state-of-art techniques make use of a coarse approximation of curvature  limiting its practical applications. We argue that curvature must be computed using a multigrid convergent estimator, instead. As an illustration, we propose a two-stage method based on the minimization of a squared curvature energy that enhances the output quality of grab-cut image segmentation.
+Recent works indicate the potential of curvature as a regularizer in image segmentation, in particular for the class of thin and elongated objects, ubiquitous in medical imagery, in which length regularization performs badly. However, state-of-art techniques make use of a coarse approximation of curvature  limiting its practical applications. We argue that curvature must be computed using a multigrid convergent estimator, instead. As an application, we propose the use of the model as a post-processing step in a segmentation framework.
  
-\keywords{Multigrid convergence  \and Digital estimator \and Curvature \and Optimization.}
+\keywords{Multigrid convergence  \and Digital estimator \and Curvature \and Shape Optimization \and Image Segmentation.}
 \end{abstract}
 %
 %
 %
 
 \section{Introduction}
-Geometric quantities are particularly useful as regularizers, specially when object geometry is known a priori. Length is a general purpose regularizer and the literature is vast on models that make use of it (\cite{casseles97},\cite{appleton05}). However, length is not suitable to segmentation of thin and elongated objects, as it is propense to return oversegmented solutions. Such drawback can be overcomed by injecting curvature regularization \cite{zehiry10}.
+
+Geometric quantities are particularly useful as regularizers, specially when object geometry is known a priori. Length penalization is a general purpose regularizer and the literature is vast on models that make use of it \cite{casseles97,appleton05}. However, this regularizer is not suitable for the segmentation of thin and elongated objects, as it tends to return disconnected solutions. Such drawback can be overcomed by injecting curvature regularization \cite{zehiry10}.
 				
 One of the first successful uses of curvature in image processing is the inpainting algorithm described in \cite{masnou98}. The author evaluates the elastica energy along the level lines of a simply-connected image to reconstruct its occluded parts. The level lines property of non-intersection allows the construction of an efficient dynamic programming algorithm. Nonetheless, it is still a challenging task to inject curvature in the context of image segmentation. 
 
-The state-of-art methods are difficult to optimize and  not practical \cite{schoenemann09},\cite{nieuwenhuis14}. Such approaches make use of a coarse and not convergent approximation of curvature, which is the cause of its long running times. 
+The state-of-art methods are hard to optimize and  not scalable \cite{schoenemann09,nieuwenhuis14}. In order to achieve reasonable running times, such approaches make use of a very coarse and not convergent approximation of curvature.
 
-In this work, we investigate the use of the more appropriated multigrid convergent estimators for curvature and its application as boundary regularizer. We propose a method that illustrates its effectiveness and discuss its potential to be applied in a complete segmentation model. 
+In this work, we investigate the use of the more suitable curvature estimators with multigrid convergent property and its application as boundary regularizer. We propose a method that illustrates its effectiveness and discuss its potential in a complete segmentation model. 
+
+\textit{Outline}. Section two introduces the concept of multigrid convergence and highlight its importance on the definition of digital estimators. Next, two estimators used in the paper are described, one for tangent and the other for curvature. Section three presents the proposed curvature evolution model together with several illustrations of digital flows. Section four explains how to use the evolution model as a post-processing step in a image segmentation framework. Finally, sections five and six discuss the results and point directions for future work.
+
+
 
 
 \section{Multigrid Convergent Estimators}
@@ -63,10 +68,9 @@ In this work, we investigate the use of the more appropriated multigrid converge
 
 A digital image is the result of some quantization process (e.g. Gauss digitization) over an object $X$ residing in some continuous space of dimension $d$. Such process is parameterized by a scale parameter $h>0$ and generates the object $D_h(X) \subset h \cdot \mathbb{Z}^d$, the digitization of $X$ in a grid space of size $h$. 
 
-
 Because we have a quantization (instead of sampling) process, the same digital object can be the digitization of infinitely many others. Hence, it is not adequate the use of sample-based approximations to estimate geometric features. We can only state the trivial assertion that a refined grid will lead to improved results, but any word on the convergence speed can be said. Such approximations risks to be unpractical for certain classes of objects. Multigrid convergence is the tool to evaluate measures on digital objects without any assumption on the digital data. 
 
-A digital estimator $\hat{u}$ defines  the reciprocal of a geometrical quantity $u$ of $X \subset \mathbb{R^d}$ (such as tangent or curvature) in its digitization $D_h(X)$. The quality of a digital estimator can be evaluated by proving the estimator is \textit{multigrid convergent}. 
+A digital estimator $\hat{u}$ defines  the reciprocal of a geometrical quantity $u$ of $X \subset \mathbb{R^d}$ (such as tangent or curvature) in its digitization $D_h(X)$. The quality of a digital estimator can be evaluated by proving that the estimator is \textit{multigrid convergent}. 
 	
 	\begin{ddef}[Multigrid convergence for local geometric quantites]
 		A local discrete geometric estimator $\hat{u}$ of some geometric quantity $u$ is multigrid convergent for the family $\mathbb{X}$ if and only if, for any $X \in \mathbb{X}$, there exists a grid step $h_X>0$ such that the estimate $\hat{u}(D_h(X),\hat{x},h)$ is defined for all $\hat{x} \in \partial_hX$ with $ 0 < h < h_X$, and for any $x \in \partial X$,
@@ -79,48 +83,58 @@ A digital estimator $\hat{u}$ defines  the reciprocal of a geometrical quantity 
 	\end{ddef}
 	
 	
-	For a global geometric quantity (e.g. volume), the definition remains the same, except that the mapping between $\partial X$ and $\partial_h X$ is no longer necessary.
+	For a global geometric quantity (e.g. perimeter, area, volume), the definition remains the same, except that the mapping between $\partial X$ and $\partial_h X$ is no longer necessary.
 	
-In the next section we describe two estimators that will be important for the remaining of this paper.
+In the next section we describe two estimators that will be important for our purpose.
 
-\subsection{Tangent and Length Estimators}
-We represent a curve as a sequence of pointels (zero dimensional elements of the digital grid. Its respective higher dimensional counterparts are called linels and pixels). Sequence indexes are recovered by function $i_C(\cdot)$. The curve segment $C_{p,q}$ between pointels $p,q$ is a digital straight segment (DSS) if $C_{p,q}$ is a standard line.
+\subsection{Tangent and Perimeter Estimators}
 
+The literature presents several perimeter estimators which are multigrid convergent \cite{}, but for our purpose we need to correctly estimate the length locally. As multigrid convergent estimators for tangent we can cite \cite{}. We choose the $\lambda$-MST because of its convergence properties and also because its already implemented in the DGtal library. The tangent at estimation at some pixel is computed by a weighted sum of maximal digital straight segments passing through the pixel.
 
-\begin{ddef}[Standard line] 
-The set of points
-$(x, y)$ of the digital plane verifying $\mu \leq ax -by \leq \abs{a} + \abs{b}$ , with $a,b$ and $\mu$
-integer numbers, is called the standard line
-with slope $a/b$ and shift $\mu$.
-\end{ddef}
-
-The $\lambda$-MST estimates the tangent of some curve $C$ at some pointel $p$ as a ponderated sum over the set of maximal digital straight segments of $C$ containing $p$.
-
-
-
-The curve $C$ can be covered by its set of maximal DSS $\mathcal{S}$. Hence, every pointel belongs to at least one maximal DSS. In fact, a pointel $p$ can be present in two or more elements of $\mathcal{S}$. We denote the pencil of $p$ by $\mathcal{P}(p) \subset \mathcal{S}$ as the set of maximal DSS which passes through $p$. We are now ready to characterize the eccentricity between a pointel $p$ and its pencil elements $M \in \mathcal{P}(p)$.
+ Given a estimator for tangent, we define the unitary element of length at some pixel $p$ as
 
 \begin{align*}
-	e_p(M) = \frac{\abs{i_M(p) - i_M(q)} }{\abs{M}}. 
+	h*\left(\cos \hat{\theta}(p)  + \sin \hat{\theta}(p)\right),
 \end{align*}
 
-The eccentricity is used to define the weight function $\lambda:[0,1]\rightarrow \mathbb{R}^+$. A good choice would be bell-shaped functions as the $C^2$ function $64(-x^6 + 3x^5 - 3x^4 + x^3)$ or the $C^{\infty}$ function $exp(4 - \frac{1}{x} - \frac{1}{1-x}).$ as noted by \cite{lachaud07}.
 
-\begin{ddef}[$\lambda$-MST] 
-The $\lambda$-maximal segment tangent direction at pointel $p$ is then defined as the weighted combination of the directions of the surrounding maximal segments:
-\end{ddef}
-
-\begin{align*}
-	\hat{\theta}(p) = \frac{ \sum_{M \in \mathcal{P}}{\lambda( e_p(M) )}\theta_M }{\sum_{M \in \mathcal{P}}{\lambda( e_p(M) )}}.
-\end{align*}
-
-The $\lambda$-MST is linearly convergent with average rate $O(h^{\frac{1}{3}})$ for the class of convex shapes with bounded curvature and finite number of inflexion points. A multigrid convergent estimator for length with equal convergence properties can be derived by integration.
-
-\begin{align*}
-	\hat{s} = h \cdot \sum_{l \in \mathcal{L}(C)}{\hat{\theta}(l) \cdot or(l)},
-\end{align*}
-
-where $\mathcal{L}(C)$ is the linel set of $C$ and $or(\cdot)$ the direction of a linel.
+%We represent a curve as a sequence of pointels (zero dimensional elements of the digital grid. Its respective higher dimensional counterparts are called linels and pixels). Sequence indexes are recovered by function $i_C(\cdot)$. The curve segment $C_{p,q}$ between pointels $p,q$ is a digital straight segment (DSS) if $C_{p,q}$ is a standard line.
+%
+%
+%\begin{ddef}[Standard line] 
+%The set of points
+%$(x, y)$ of the digital plane verifying $\mu \leq ax -by \leq \abs{a} + \abs{b}$ , with $a,b$ and $\mu$
+%integer numbers, is called the standard line
+%with slope $a/b$ and shift $\mu$.
+%\end{ddef}
+%
+%The $\lambda$-MST estimates the tangent of some curve $C$ at some pointel $p$ as a ponderated sum over the set of maximal digital straight segments of $C$ containing $p$.
+%
+%
+%
+%The curve $C$ can be covered by its set of maximal DSS $\mathcal{S}$. Hence, every pointel belongs to at least one maximal DSS. In fact, a pointel $p$ can be present in two or more elements of $\mathcal{S}$. We denote the pencil of $p$ by $\mathcal{P}(p) \subset \mathcal{S}$ as the set of maximal DSS which passes through $p$. We are now ready to characterize the eccentricity between a pointel $p$ and its pencil elements $M \in \mathcal{P}(p)$.
+%
+%\begin{align*}
+%	e_p(M) = \frac{\abs{i_M(p) - i_M(q)} }{\abs{M}}. 
+%\end{align*}
+%
+%The eccentricity is used to define the weight function $\lambda:[0,1]\rightarrow \mathbb{R}^+$. A good choice would be bell-shaped functions as the $C^2$ function $64(-x^6 + 3x^5 - 3x^4 + x^3)$ or the $C^{\infty}$ function $exp(4 - \frac{1}{x} - \frac{1}{1-x}).$ as noted by \cite{lachaud07}.
+%
+%\begin{ddef}[$\lambda$-MST] 
+%The $\lambda$-maximal segment tangent direction at pointel $p$ is then defined as the weighted combination of the directions of the surrounding maximal segments:
+%\end{ddef}
+%
+%\begin{align*}
+%	\hat{\theta}(p) = \frac{ \sum_{M \in \mathcal{P}}{\lambda( e_p(M) )}\theta_M }{\sum_{M \in \mathcal{P}}{\lambda( e_p(M) )}}.
+%\end{align*}
+%
+%The $\lambda$-MST is linearly convergent with average rate $O(h^{\frac{1}{3}})$ for the class of convex shapes with bounded curvature and finite number of inflexion points. A multigrid convergent estimator for length with equal convergence properties can be derived by integration.
+%
+%\begin{align*}
+%	\hat{s} = h \cdot \sum_{l \in \mathcal{L}(C)}{\hat{\theta}(l) \cdot or(l)},
+%\end{align*}
+%
+%where $\mathcal{L}(C)$ is the linel set of $C$ and $or(\cdot)$ the direction of a linel.
 
 
 \subsection{Integral Invariant Curvature Estimator}
@@ -145,10 +159,10 @@ Generally, an invariant $\sigma$ is a real-valued function from some space $\Ome
 	The value $\sigma_{X,r}(p)$ is the intersection area of ball $B_r(p)$ with shape $X$. By locally approximating the shape at point $p \in X$, one can rewrite the intersection area $\sigma_{X,r}(p)$ in the form of the Taylor expansion \cite{pottman09}
 	
 		\begin{align*}
-			\sigma_{X,r}(p) = \frac{\pi}{2}r^2 - \frac{\kappa(X,x)}{3}r^3 + O(r^4).
+			\sigma_{X,r}(p) = \frac{\pi}{2}r^2 - \frac{\kappa(X,p)}{3}r^3 + O(r^4),
 		\end{align*}
 		
-	The curvature of $X$ at point $p$ can be approximated at arbitrarly precision as the radius $r$ approaches to zero by
+	where $\kappa(X,p)$ is the curvature of $X$ at point $p$. By isolating $\kappa$ we can define a curvature estimator
 	
 	\begin{align}
 		\tilde{\kappa}(p) \coloneqq \frac{3}{r^3}\left( \frac{\pi r^2}{2} - \sigma_{X,r}(p) \right),
@@ -158,7 +172,7 @@ Generally, an invariant $\sigma$ is a real-valued function from some space $\Ome
 	Such approximation is convenient as one can simply devise a multigrid convergent estimator for area.
 
 	\begin{ddef}	
-		Given a digital shape $D \subset \frac{1}{h} \cdot \mathbb{Z}^2$, a multigrid convergent estimator for area $\widehat{Area}(D,h)$ is defined as	
+		Given a digital shape $D \subset h \cdot \mathbb{Z}^2$, a multigrid convergent estimator for area $\widehat{Area}(D,h)$ is defined as	
 		
 		\begin{align}
 			\widehat{Area}(D,h) \coloneqq h^2\text{Card}\left( D \right).			
@@ -167,13 +181,13 @@ Generally, an invariant $\sigma$ is a real-valued function from some space $\Ome
 
 	\end{ddef}
 	
-	In \cite{coeurjolly13}, the authors use the approximation\eqref{eq:curvature_approximation} and digital estimator \eqref{eq:digital_estimator_area} to define a multigrid convergent estimator for curvature.
+	In \cite{coeurjolly13}, the authors combine the approximation\eqref{eq:curvature_approximation} and digital estimator \eqref{eq:digital_estimator_area} to define a multigrid convergent estimator for curvature.
 
 	\begin{ddef}[Integral Invariant Curvature Estimator]
-		Let $D \in \frac{1}{h} \cdot \mathbb{Z}^2$ a digital shape. The integral invariant curvature estimator is defined as
+		Let $D \in h \cdot \mathbb{Z}^2$ a digital shape. The integral invariant curvature estimator is defined as
 		
 		\begin{align*}
-			\hat{\kappa}_{II} \coloneqq \frac{3}{r^3} \left( \frac{\pi r^2}{2} - \widehat{Area} \left( B_{r/h} ( \frac{1}{h} \cdot x ) \cap D, h \right) \right).
+			\hat{\kappa}_{II}(D,x,h) \coloneqq \frac{3}{r^3} \left( \frac{\pi r^2}{2} - \widehat{Area} \left( B_{r/h} ( \frac{1}{h} \cdot x ) \cap D, h \right) \right).
 		\end{align*}
 	\end{ddef}
 	
@@ -223,7 +237,7 @@ In its integer linear programming model \cite{schoenemann09}, Schoenemann restri
 \subsection{Our Local Optimization Model}
 
 
-Instead of restricting the optimization domain, we assume a warm start. As input $X$, our method expects the segmented region given by some general segmentation framework as GrabCut \cite{rother04}. Next, our method will improve its boundary with respect to energy \eqref{eq:digital-energy}. We proceed by describing the two main routines correct and expand as illustrated in \ref{alg:boundary-correction}.
+Instead of restricting the optimization domain, we assume a reasonable initialization. As input $X$, our method expects the segmented region given by some general segmentation framework as GrabCut \cite{rother04}. Next, our method will improve its boundary with respect to energy \eqref{eq:digital-energy}. We proceed by describing the two main routines correct and expand as illustrated in \ref{alg:boundary-correction}.
 
 
 \begin{figure}
@@ -267,7 +281,7 @@ Given some digital region $R$, we define its $4$-connected boundary as $\partial
 	
 	\begin{align*}
 		E_{\kappa}(p) &= \left( \; \sum_{y_i \in Y_{p}}{y_i} \; \right) ^2 -2 \cdot Q\cdot \sum_{y_i \in Y_{p}}{y_i} + 2 |T_p| \cdot \sum_{ y_i \in Y_{p} }{y_i} \\[1em]
-		&= \sum_{y_i \in Y_{p}}{x_i^2} + 2 \cdot \sum_{ \substack{ i<j \\ y_i,y_j \in Y_{p}  } }{y_iy_j} \quad - 2 (Q-|F_p|)\cdot \sum_{y_i \in Y_{p}}{y_i}
+		&= \sum_{y_i \in Y_{p}}{y_i^2} + 2 \cdot \sum_{ \substack{ i<j \\ y_i,y_j \in Y_{p}  } }{y_iy_j} \quad - 2 (Q-|T_p|)\cdot \sum_{y_i \in Y_{p}}{y_i}
 	\end{align*}
 	
 	Which can be further simplified by using the binary character of the variables.
