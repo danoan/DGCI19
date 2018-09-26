@@ -39,7 +39,21 @@ CentraleSupelec Université Paris-Saclay\\
 \maketitle              % typeset the header of the contribution
 %
 \begin{abstract}
-Recent works indicate the potential of curvature as a regularizer in image segmentation, in particular for the class of thin and elongated objects, ubiquitous in medical imagery, in which length regularization performs badly. However, state-of-art techniques make use of a coarse approximation of curvature  limiting its practical applications. We argue that curvature must be computed using a multigrid convergent estimator, instead. As an application, we propose the use of the model as a post-processing step in a segmentation framework.
+  Recent works have indicated the potential of using curvature as a
+  regularizer in image segmentation, in particular for the class of
+  thin and elongated objects. These are ubiquitous in bio-medical
+  imaging (e.g. vascular networks), in which length regularization can
+  sometime performs badly, as well as in texture
+  identification. Curvature is a second-order differential measure,
+  and so its estimators are sensitive to noise. The straightforward
+  extentions to Total Variation are not convex, making it a challenge
+  to optimize.  State-of-art techniques make use of a coarse
+  approximation of curvature that limit practical applications.
+
+  We argue that curvature must be computed
+  using a multigrid convergent estimator, instead, which we propose
+  in this article. We illlustrate the use of the model as a post-processing step in a
+  segmentation framework.
  
 \keywords{Multigrid convergence  \and Digital estimator \and Curvature \and Shape Optimization \and Image Segmentation.}
 \end{abstract}
