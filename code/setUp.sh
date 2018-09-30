@@ -1,2 +1,2 @@
 sh scripts/clone-repos.sh
-sh scipts/make-ext-project.sh
+sh scripts/make-ext-project.sh

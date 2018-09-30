@@ -1,4 +1,3 @@
-cd ..
 ROOT_DIR=$PWD
 INSTALL_PATH=$ROOT_DIR/ext
 EXT_PROJECT_DIR=$ROOT_DIR/ext-project
