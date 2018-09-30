@@ -75,7 +75,8 @@ void readInput(Model::GrabCorrectionInput& gci,
         }
     }
 
-    gci.imagePath = argv[1];
+    gci.imagePath = argv[optind];
+    std::cout << gci.imagePath << std::endl;
 }
 
 int main(int argc, char** argv)
