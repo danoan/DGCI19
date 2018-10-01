@@ -36,3 +36,36 @@ target_link_libraries(main
         -lboost_system
         ${DGTAL_LIBRARIES}
         ${OpenCV_LIBS})
+
+
+
+#------------Illustrations---------------
+
+add_executable(illustration
+        src/illustration.cpp
+        src/Illustration/AroundBoundaryReasoning.cpp
+        )
+
+target_compile_definitions(illustration PRIVATE -DPROJECT_DIR=\"${CMAKE_SOURCE_DIR}\")
+
+target_compile_features(illustration PRIVATE cxx_auto_type)
+target_compile_options(illustration PRIVATE -fext-numeric-literals)
+
+target_include_directories(illustration PRIVATE
+        ${DGTAL_INCLUDE_DIRS}
+        ext/include
+        include
+        )
+
+target_link_libraries(illustration
+        -lbinocs-application
+        -lscabolic-energy
+        -lscabolic-core
+        -lscabolic-optimization
+        -ldipacus-derivates
+        -ldipacus-components
+        -ldipacus-base
+        -lboost_filesystem
+        -lboost_system
+        ${DGTAL_LIBRARIES}
+        ${OpenCV_LIBS})
