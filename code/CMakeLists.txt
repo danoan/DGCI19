@@ -9,7 +9,7 @@ find_package(OpenCV REQUIRED)
 
 add_executable(main
         src/main.cpp
-        src/Application/utils.cpp
+        src/utils.cpp
         src/Application/modes/Interactive.cpp
         )
 
@@ -44,6 +44,8 @@ target_link_libraries(main
 add_executable(illustration
         src/illustration.cpp
         src/Illustration/AroundBoundaryReasoning.cpp
+        src/Illustration/Flow.cpp
+        src/utils.cpp
         )
 
 target_compile_definitions(illustration PRIVATE -DPROJECT_DIR=\"${CMAKE_SOURCE_DIR}\")

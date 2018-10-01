@@ -4,7 +4,7 @@
 #include <vector>
 #include <ostream>
 
-#include <Application/utils.h>
+#include <utils.h>
 #include <Application/model/OptOutput.h>
 
 namespace BinOCS

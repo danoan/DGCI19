@@ -1,4 +1,5 @@
 #include "Illustration/AroundBoundaryReasoning.h"
+#include "Illustration/Flow.h"
 
 namespace BinOCS
 {
@@ -15,8 +16,9 @@ using namespace BinOCS::Lab;
 
 int main()
 {
-    AroundBoundaryReasoning abr(outputDir + "/illustration");
-    std::cout << abr.t << std::endl;
+    AroundBoundaryReasoning abr(outputDir + "/illustration/ab-reasoning");
+
+    Flow flow(outputDir +"/illustration/flow",false);
     return 0;
 }
 

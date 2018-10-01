@@ -16,7 +16,7 @@
 #include <Application/model/input/GrabCorrectionInput.h>
 
 #include "Application/model/input/BCorrectionInput.h"
-#include "Application/utils.h"
+#include "utils.h"
 
 
 namespace BinOCS
