@@ -1,0 +1,11 @@
+Paper/digital-curvature-boundary-correction.pdf
+Paper/digital-curvature-boundary-correction.synctex.gz
+Paper/build
+code/ext
+code/ext-project
+code/cmake-build-debug
+code/output
+code/.idea
+code/build
+code/update.sh
+
