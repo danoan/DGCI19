@@ -21,7 +21,7 @@
 
 \begin{document}
 %
-\title{Digital Curvature Boundary Evolution Model for Image Segmentation\thanks{This  work has  been  partly  funded by CoMeDiC ANR-15-CE40-0006 research grant.}}
+\title{Digital Curvature Evolution Model for Image Segmentation\thanks{This  work has  been  partly  funded by CoMeDiC ANR-15-CE40-0006 research grant.}}
 
 \author{Daniel Antunes\inst{1}
 Jacques-Olivier Lachaud\inst{1}
@@ -31,7 +31,7 @@ Hugues Talbot\inst{2}}
 % First names are abbreviated in the running head.
 % If there are more than two authors, 'et al.' is used.
 %
-\institute{Laboratoire de Mathematiques (LAMA), Universite Savoie Mont Blanc, Chambéry, France
+\institute{Laboratoire de Mathematiques (LAMA), Universite Savoie Mont Blanc, Chamb\'ery, France
 \email{daniel.martins-antunes, jacques-olivier.lachaud@univ-savoie.fr} \and
 CentraleSupelec Universit\'e Paris-Saclay\\
 \email{hugues.talbot@centralesupelec.fr}}
@@ -60,18 +60,18 @@ CentraleSupelec Universit\'e Paris-Saclay\\
 %
 %
 %
-
+\setcounter{footnote}{0}
 \section{Introduction}
 
-Geometric quantities are particularly useful as regularizers, specially when object geometry is known a priori. Length penalization is a general purpose regularizer and the literature is vast on models that make use of it \cite{casseles97,appleton05}. However, this regularizer is not suitable for the segmentation of thin and elongated objects, as it tends to return disconnected solutions. Such drawback can be overcomed by injecting curvature regularization \cite{zehiry10}.
+Geometric quantities are particularly useful as regularizers, especially when object geometry is known a priori. Length penalization is a general purpose regularizer and the literature is vast on models that make use of it \cite{casseles97,appleton05}. However, this regularizer is not suitable for the segmentation of thin and elongated objects, as it tends to return disconnected solutions. Such drawback can be overcomed by injecting curvature regularization \cite{zehiry10}.
 				
 One of the first successful uses of curvature in image processing is the inpainting algorithm described in \cite{masnou98}. The author evaluates the elastica energy along the level lines of a simply-connected image to reconstruct its occluded parts. The level lines property of non-intersection allows the construction of an efficient dynamic programming algorithm. Nonetheless, it is still a challenging task to inject curvature in the context of image segmentation. 
 
-The state-of-art methods are hard to optimize and  not scalable \cite{schoenemann09,nieuwenhuis14}. In order to achieve reasonable running times, such approaches make use of a very coarse and not convergent approximation of curvature.
+The state-of-art methods are difficult to optimize and  not scalable \cite{zehiry10,schoenemann09,nieuwenhuis14}. In order to achieve reasonable running times, such approaches make use of a coarse and not convergent approximation of curvature, which has an important impact in the results. Recently, multigrid convergent estimators for curvature have been proposed \cite{schindele17,coeurjolly13,roussillon11}, motivating us to search for models in which they can be applied.
 
-In this work, we investigate the use of the more suitable curvature estimators with multigrid convergent property and its application as boundary regularizer. We propose a method that illustrates its effectiveness and discuss its potential in a complete segmentation model. 
+In this work, we investigate the use of a more suitable curvature estimator with multigrid convergent property and its application as boundary regularizer. Our method reduces the elastica energy of the contour and we illustrate its behaviour by evaluating several digital flows. Finally, we present an application of the model as a post-processing step on a segmentation framework. The code is made available at github\footnote{https://www.github.com/danoan/DGCI19}.
 
-\textit{Outline}. Section two introduces the concept of multigrid convergence and highlight its importance on the definition of digital estimators. Next, two estimators used in the paper are described, one for tangent and the other for curvature. Section three presents the proposed curvature evolution model together with several illustrations of digital flows. Section four explains how to use the evolution model as a post-processing step in a image segmentation framework. Finally, sections five and six discuss the results and point directions for future work.
+\textit{Outline}. Section two reviews the concept of multigrid convergence and highlights its importance on the definition of digital estimators. Next, we describe two convergent estimators used in this paper, one for tangent and the other for curvature. They are used on the optimization model and in the definition of the digital elastica. Section three describes the proposed curvature evolution model along with several illustrations of digital flows. Section four explains how to use the evolution model as a post-processing step in a image segmentation framework. Finally, sections five and six discuss the results and point directions for future work.
 
 
 
@@ -82,9 +82,11 @@ In this work, we investigate the use of the more suitable curvature estimators w
 
 A digital image is the result of some quantization process (e.g. Gauss digitization) over an object $X$ residing in some continuous space of dimension $d$. Such process is parameterized by a scale parameter $h>0$ and generates the object $D_h(X) \subset h \cdot \mathbb{Z}^d$, the digitization of $X$ in a grid space of size $h$. 
 
-Because we have a quantization (instead of sampling) process, the same digital object can be the digitization of infinitely many others. Hence, it is not adequate the use of sample-based approximations to estimate geometric features. We can only state the trivial assertion that a refined grid will lead to improved results, but any word on the convergence speed can be said. Such approximations risks to be unpractical for certain classes of objects. Multigrid convergence is the tool to evaluate measures on digital objects without any assumption on the digital data. 
+Given a object $X$ and its digitization $D_h(X)$, a digital estimator $\hat{u}$ for some geometric quantity $u$ is intended to compute $u(X)$ by using only the digitization. This problem is not well posed, as the same digital object could be the digitization of infinitely others objects very different from $X$. Therefore, a characterization of what is a good estimator is necessary.
 
-A digital estimator $\hat{u}$ defines  the reciprocal of a geometrical quantity $u$ of $X \subset \mathbb{R^d}$ (such as tangent or curvature) in its digitization $D_h(X)$. The quality of a digital estimator can be evaluated by proving that the estimator is \textit{multigrid convergent}. 
+Let $u$ be some geometric quantity of $X$ (e.g. tangent, curvature). We wish to devise a digital estimator $\hat{u}$ for $u$. It is reasonable to state that $\hat{u}$ is a good estimator if $\hat{u}(D_h(X))$ converges to $u(X)$ as we refine our grid. For example, counting pixels is a convergent estimator for area; but counting boundary pixels is not a convergent estimator for perimeter. Multigrid convergence is the mathematical tool that makes this definition precise.
+
+
 	
 	\begin{ddef}[Multigrid convergence for local geometric quantites]
 		A local discrete geometric estimator $\hat{u}$ of some geometric quantity $u$ is multigrid convergent for the family $\mathbb{X}$ if and only if, for any $X \in \mathbb{X}$, there exists a grid step $h_X>0$ such that the estimate $\hat{u}(D_h(X),\hat{x},h)$ is defined for all $\hat{x} \in \partial_hX$ with $ 0 < h < h_X$, and for any $x \in \partial X$,
@@ -99,17 +101,26 @@ A digital estimator $\hat{u}$ defines  the reciprocal of a geometrical quantity 
 	
 	For a global geometric quantity (e.g. perimeter, area, volume), the definition remains the same, except that the mapping between $\partial X$ and $\partial_h X$ is no longer necessary.
 	
-In the next section we describe two estimators that will be important for our purpose.
+	
+	Multigrid convergent estimators give us a quality certificate and should be preferred over non-multigrid convergent ones. In the next section we describe two estimators that will be important for our purpose.
+	
+
 
 \subsection{Tangent and Perimeter Estimators}
 
-The literature presents several perimeter estimators which are multigrid convergent \cite{}, but for our purpose we need to correctly estimate the length locally. As multigrid convergent estimators for tangent we can cite \cite{}. We choose the $\lambda$-MST because of its convergence properties and also because its already implemented in the DGtal library. The tangent at estimation at some pixel is computed by a weighted sum of maximal digital straight segments passing through the pixel.
+The literature presents several perimeter estimators which are multigrid convergent (see \cite{coeurjolly04,coeurjolly12} for a review), but in order to define the digital elastica we need a local estimation of length and we wish that integration over these local length elements gives a multigrid convergent estimator for the perimeter. 
 
- Given a estimator for tangent, we define the unitary element of length at some pixel $p$ as
+\begin{ddef}[Elementary Length]
+	Let a digital curve $C$ to be represented as a sequence of grid vertices in a grid cell representation of digital objects. Further, let $\hat{\theta}$ to be a multigrid convergent estimator for tangent. The elementary length $\hat{s}(e)$ at some grid edge $e\in C$ is defined as
+	
+	\begin{align*}
+		\hat{s}(e) = \hat{\theta(l)} \cdot or(e),
+	\end{align*}
+	where $or(e)$ denotes the grid edge orientation.
+\end{ddef}
 
-\begin{align*}
-	h*\left(\cos \hat{\theta}(p)  + \sin \hat{\theta}(p)\right),
-\end{align*}
+	In \cite{lachaud06}, Lachaud proves that the integration of the elementary length along the digital curve is a multigrid convergent estimator for perimeter if one uses the $\lambda$-MST \cite{lachaud07} tangent estimator.
+
 
 
 %We represent a curve as a sequence of pointels (zero dimensional elements of the digital grid. Its respective higher dimensional counterparts are called linels and pixels). Sequence indexes are recovered by function $i_C(\cdot)$. The curve segment $C_{p,q}$ between pointels $p,q$ is a digital straight segment (DSS) if $C_{p,q}$ is a standard line.
@@ -209,11 +220,12 @@ Generally, an invariant $\sigma$ is a real-valued function from some space $\Ome
 	The estimator is robust to noise and can be extended to estimate the mean curvature of three dimensional shapes.
 	
 
-\section{Digital Boundary Correction}
+\section{Digital Curvature Evolution Model}
 
-In this section we describe our method. We aim to enhance the quality of general segmentation methods, which tends to produce regions with artificial contours. A high quality segmentation produces an image which looks natural and is visual appealing. 
 
-We briefly discuss an ideal global optimization model and discuss its practicity before detailing our local approach.
+Our goal is to evolve a digital object in order to minimize the elastica energy along its contour. Our strategy is to define the digital elastica by using the unitary length and integral invariant estimators and minimize its underlying binary energy. However, the derived energy is of order four and difficult to optimize. Therefore, we propose an indirect method to minimize the digital elastica. Such method can be interpreted as a gradient flow of the elastica energy, but it is completely defined in discrete terms.
+
+
 
 
 \subsection{Ideal Global Optimization Model}
@@ -227,14 +239,14 @@ We evaluate the quality of a segmentation by evaluating the elastica energy over
 We are going to use the digital version of the energy, using multigrid convergent estimators. The energy, in this case, is also multigrid convergent.
 
 \begin{align}
-	\hat{E}(X) = \sum_{x \in \partial D_h(X)}{ \hat{s}(x)\left(\; \alpha + \beta \hat{\kappa}_{II}^2(x) \; \right)}.  
+	\hat{E}( D_h(X) ) = \sum_{x \in \partial D_h(X)}{ \hat{s}(x)\left(\; \alpha + \beta \hat{\kappa}_{II}^2(x) \; \right)}.  
 	\label{eq:digital-energy}
 \end{align}
 
-A global method for energy \eqref{eq:digital-energy} necessarily need to restrict the optimization domain to consistent regions. We cannot proper estimate length and curvature along anything different from a boundary, and in our case, a closed boundary. Let $I$ be the image domain. Denote by $\mathcal{T}$ the family of subsets of $I$ satisfying the property
+A global method for energy \eqref{eq:digital-energy} necessarily need to restrict the optimization domain to consistent regions. We cannot proper estimate length and curvature along anything different from a boundary, and in our case, a closed boundary. Let $\Omega$ to denote the digital domain. Denote by $\mathcal{T}$ the family of subsets of $\Omega$ satisfying the property
 
 \begin{align*}
-	X \in \mathcal{T} \implies X \subset I \text{ and } 4B(\partial X),
+	D \in \mathcal{T} \implies D \subset I \text{ and } 4B(\partial D),
 \end{align*} 
 
 where $4B(\cdot)$ is the $4$-connected closed boundary predicate. 
@@ -243,10 +255,17 @@ where $4B(\cdot)$ is the $4$-connected closed boundary predicate.
 The global optimization problem can be stated as:
 
 \begin{align*}
-	\min_{X \in \mathcal{T}}{\sum_{x \in \partial D_h(X)}{ \hat{s}(x)\left(\; \alpha + \beta \hat{\kappa}^2(x) \; \right)}.}
+	\min_{D \in \mathcal{T}}{\sum_{x \in \partial D}{ \hat{s}(x)\left(\; \alpha + \beta \hat{\kappa_{II}}^2(x) \; \right)}.}
 \end{align*}
 
-In its integer linear programming model \cite{schoenemann09}, Schoenemann restricts the optimization domain by enforcing a set of consistent constraints. The model is unpractical if one wishes to obtain reasonable approximations of the squared curvature. We expect to 
+In its integer linear programming model \cite{schoenemann09}, Schoenemann restricts the optimization domain by enforcing a set of constraints that enforces compact sets as solutions. However, the main difficulty here is the energy order, which is of order four if we substitute the estimators by its definitions. We are going to explore an alternative strategy.
+
+
+
+\subsection{Corner detector}
+
+We can derive a corner detector by evaluating our squared curvature estimator along the digital boundary of our object.
+
 
 \subsection{Our Local Optimization Model}
 

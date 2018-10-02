@@ -11,11 +11,21 @@ Appleton, B., Talbot, H.: Globally optimal geodesic active contours. Journal of
 Caselles, V., Kimmel, R., Sapiro, G.: Geodesic active contours. International
   Journal of Computer Vision  \textbf{22}(1),  61--79 (Feb 1997)
 
+\bibitem{coeurjolly04}
+Coeurjolly, D., Klette, R.: A comparative evaluation of length estimators of
+  digital curves. IEEE Transactions on Pattern Analysis and Machine
+  Intelligence  \textbf{26}(2),  252--258 (Feb 2004)
+
 \bibitem{coeurjolly13}
 Coeurjolly, D., Lachaud, J.O., Levallois, J.: Integral based curvature
   estimators in digital geometry. In: Gonzalez-Diaz, R., Jimenez, M.J.,
   Medrano, B. (eds.) Discrete Geometry for Computer Imagery. pp. 215--227.
   Springer Berlin Heidelberg, Berlin, Heidelberg (2013)
+
+\bibitem{coeurjolly12}
+Coeurjolly, D., Lachaud, J.O., Roussillon, T.: Multigrid Convergence of
+  Discrete Geometric Estimators, pp. 395--424. Springer Netherlands, Dordrecht
+  (2012)
 
 \bibitem{zehiry10}
 El-Zehiry, N.Y., Grady, L.: Fast global optimization of curvature. In: 2010
@@ -25,6 +35,12 @@ El-Zehiry, N.Y., Grady, L.: Fast global optimization of curvature. In: 2010
 \bibitem{kolmogorov07}
 Kolmogorov, V., Rother, C.: Minimizing non-submodular functions with graph cuts
   - a review. vol.~29 (January 2007)
+
+\bibitem{lachaud06}
+Lachaud, J.O.: {Non-Euclidean spaces and image analysis : Riemannian and
+  discrete deformable models, discrete topology and geometry}. Ph.D. thesis,
+  {Universit{\'e} Sciences et Technologies - Bordeaux I} (Dec 2006),
+  \url{https://tel.archives-ouvertes.fr/tel-00396332}
 
 \bibitem{lachaud07}
 Lachaud, J.O., Vialard, A., de~Vieilleville, F.: Fast, accurate and convergent
@@ -60,6 +76,18 @@ Rother, C., Kolmogorov, V., Blake, A.: "grabcut": Interactive foreground
 Rother, C., Kolmogorov, V., Lempitsky, V.S., Szummer, M.: Optimizing binary
   mrfs via extended roof duality. 2007 IEEE Conference on Computer Vision and
   Pattern Recognition pp.~1--8 (2007)
+
+\bibitem{roussillon11}
+Roussillon, T., Lachaud, J.O.: Accurate curvature estimation along digital
+  contours with maximal digital circular arcs. In: Aggarwal, J.K., Barneva,
+  R.P., Brimkov, V.E., Koroutchev, K.N., Korutcheva, E.R. (eds.) Combinatorial
+  Image Analysis. pp. 43--55. Springer Berlin Heidelberg, Berlin, Heidelberg
+  (2011)
+
+\bibitem{schindele17}
+Schindele, A., Massopust, P., Forster, B.: Multigrid convergence for the mdca
+  curvature estimator. J. Math. Imaging Vis.  \textbf{57}(3),  423--438 (Mar
+  2017)
 
 \bibitem{schoenemann09}
 Schoenemann, T., Kahl, F., Cremers, D.: Curvature regularity for region-based
