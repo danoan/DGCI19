@@ -37,7 +37,16 @@ void Flow::shapeFlow(TShape shape,
     std::string currImagePath = flowFolder + "/0.pgm";
     exportImageFromDigitalSet(ds,currImagePath);
 
+    os << "Image: " << imageName << "\n"
+       << std::endl;
+
     std::vector<TableEntry> entries;
+
+    Solution solution(gd.getDomain());
+    solution.outputDS = ds;
+    solution.energyValue = -1;
+    entries.push_back(TableEntry(solution,"IT 0"));
+    
     cv::Mat img;
     int i=1;
     do
@@ -54,8 +63,7 @@ void Flow::shapeFlow(TShape shape,
         ++i;
     }while(i<maxIt);
 
-    os << "Image: " << imageName << "/n"
-       << std::endl;
+
 
     printTable(entries,os);
 

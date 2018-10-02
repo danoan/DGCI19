@@ -27,6 +27,20 @@ void Flow::exportImageFromDigitalSet(const DigitalSet& ds,
     DGtal::GenericWriter<Image2D>::exportFile(outputFilepath, image);
 }
 
+void Flow::outputElasticaEnergy(const DigitalSet& ds, std::ostream& os)
+{
+    int colLength=20;
+    std::string(*fnD)(int,double) = Utils::fixedStrLength;
+    
+    double IIValue,MDCAValue;
+    SCaBOliC::Utils::IIISQEvaluation(IIValue,ds);
+    SCaBOliC::Utils::MDCAISQEvaluation(MDCAValue,ds);
+
+    os << fnD(colLength,IIValue) << "\t"
+       << fnD(colLength,MDCAValue) << "\t"
+       << std::endl;
+}
+
 
 void Flow::printTable(const std::vector<TableEntry> &entries, std::ostream &os)
 {
@@ -47,13 +61,7 @@ void Flow::printTable(const std::vector<TableEntry> &entries, std::ostream &os)
         os << fnS(colLength,it->name) << "\t"
            << fnD(colLength,curr.energyValue) << "\t";
 
-        double IIValue,MDCAValue;
-        SCaBOliC::Utils::IIISQEvaluation(IIValue,curr.outputDS);
-        SCaBOliC::Utils::MDCAISQEvaluation(MDCAValue,curr.outputDS);
-
-        os << fnD(colLength,IIValue) << "\t"
-           << fnD(colLength,MDCAValue) << "\t"
-           << std::endl;
+	outputElasticaEnergy(it->solution.outputDS,os);
     }
 }
 

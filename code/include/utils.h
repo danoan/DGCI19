@@ -86,7 +86,7 @@ namespace BinOCS
             ...
             ///////////////////////////////////////////////////////////////////////*/
 
-            void showManyImages(std::string title, int nArgs, ...);
+            void showManyImages(std::string title, int nArgs, const cv::Mat& img1, const cv::Mat& img2);
 
             cv::Rect computeBoundingBox(const cv::Mat& img);
         }

@@ -76,7 +76,7 @@ void Utils::write(const Model::OptOutput& output,
     }
 }
 
-void Utils::showManyImages(std::string title, int nArgs, ...)
+void Utils::showManyImages(std::string title,int nArgs, const cv::Mat& img1, const cv::Mat& img2)
 {
     using namespace cv;
     using namespace std;
@@ -85,6 +85,8 @@ void Utils::showManyImages(std::string title, int nArgs, ...)
     int i;
     int m, n;
     int x, y;
+
+    cv::Mat listImg[2] = {img1,img2};
 
 // w - Maximum number of images in a row
 // h - Maximum number of images in a column
@@ -138,14 +140,11 @@ void Utils::showManyImages(std::string title, int nArgs, ...)
 // Create a new 3 channel image
     Mat DispImage = Mat::zeros(Size(100 + size*w, 60 + size*h), CV_8UC3);
 
-// Used to get the arguments passed
-    va_list args;
-    va_start(args, nArgs);
 
 // Loop for nArgs number of arguments
     for (i = 0, m = 20, n = 20; i < nArgs; i++, m += (20 + size)) {
         // Get the Pointer to the IplImage
-        Mat img = va_arg(args, Mat);
+        cv::Mat img = listImg[i];
 
         // Check whether it is NULL or not
         // If it is NULL, release the image, and return
@@ -182,8 +181,6 @@ void Utils::showManyImages(std::string title, int nArgs, ...)
     imshow( title, DispImage);
     waitKey();
 
-// End the number of arguments
-    va_end(args);
 }
 
 cv::Rect Utils::computeBoundingBox(const cv::Mat &img)

@@ -75,6 +75,7 @@ namespace BinOCS
 
                 ConfigData defaultConfigData(MockDistribution& frDistr,
                                              MockDistribution& bkDistr);
+		void outputElasticaEnergy(const DigitalSet& ds, std::ostream& os);
                 void printTable(const std::vector<TableEntry> &entries,
                                 std::ostream &os);
             };
