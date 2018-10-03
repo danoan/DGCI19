@@ -33,6 +33,7 @@ namespace BinOCS
             std::string fixedStrLength(int l,double v);
             std::string resolveQPBOSolverType(Model::BCorrectionInput::QPBOSolverType solverType);
 
+            std::string nDigitsString(int num,int digits);
 
             /*Function///////////////////////////////////////////////////////////////
 

@@ -22,19 +22,17 @@ void Flow::shapeFlow(TShape shape,
     MyGaussDigitizer gd;
 
     gd.attach(shape);
-    gd.init(shape.getLowerBound() + DGtal::Z2i::RealPoint(-0,-0),
+    gd.init(shape.getLowerBound() + DGtal::Z2i::RealPoint(0,0),
             shape.getUpperBound() + DGtal::Z2i::RealPoint(0,0),h);
-
 
     DigitalSet ds(gd.getDomain());
     Shapes::digitalShaper(ds,gd);
-
 
     MockDistribution frDistr;
     MockDistribution bkDistr;
     ConfigData configData = defaultConfigData(frDistr,bkDistr);
 
-    std::string currImagePath = flowFolder + "/0.pgm";
+    std::string currImagePath = flowFolder + "/00.pgm";
     exportImageFromDigitalSet(ds,currImagePath);
 
     os << "Image: " << imageName << "\n"
@@ -46,20 +44,23 @@ void Flow::shapeFlow(TShape shape,
     solution.outputDS = ds;
     solution.energyValue = -1;
     entries.push_back(TableEntry(solution,"IT 0"));
-    
-    cv::Mat img;
+
+
+    cv::Mat img = cv::imread(currImagePath,CV_LOAD_IMAGE_COLOR);
+    Domain solutionDomain(Point(0,0),Point(img.cols-1,img.rows-1));
+
     int i=1;
     do
     {
         img = cv::imread(currImagePath,CV_LOAD_IMAGE_COLOR);
-        Domain solutionDomain(Point(0,0),Point(img.cols,img.rows));
+
         Solution solution(solutionDomain);
         BinOCS::Application::BCApplication BCA(solution,1,img,configData);
 
         entries.push_back(TableEntry(solution,"IT " + std::to_string(i)));
 
-        currImagePath = flowFolder + "/" + std::to_string(i) + ".pgm";
-        exportImageFromDigitalSet(solution.outputDS,currImagePath);
+        currImagePath = flowFolder + "/" + Utils::nDigitsString(i,2) + ".pgm";
+        exportImageFromDigitalSet(solution.outputDS,solutionDomain,currImagePath);
         ++i;
     }while(i<maxIt);
 

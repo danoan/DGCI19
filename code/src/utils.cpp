@@ -20,6 +20,19 @@ std::string Utils::fixedStrLength(int l,std::string str)
     return out;
 }
 
+std::string Utils::nDigitsString(int num, int digits)
+{
+    std::string s = "";
+    int numSize = num/10 + 1;
+    int lZero = digits - numSize;
+    while(lZero>0)
+    {
+        s+=std::to_string(0);
+        --lZero;
+    }
+    s+=std::to_string(num);
+    return s;
+}
 
 
 std::string Utils::resolveQPBOSolverType(Model::BCorrectionInput::QPBOSolverType solverType)

@@ -45,6 +45,7 @@ add_executable(illustration
         src/illustration.cpp
         src/Illustration/AroundBoundaryReasoning.cpp
         src/Illustration/Flow.cpp
+        src/Illustration/OneImageFlow.cpp
         src/utils.cpp
         )
 

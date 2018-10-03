@@ -73,6 +73,10 @@ namespace BinOCS
                 void exportImageFromDigitalSet(const DigitalSet& ds,
                                                const std::string& outputFilepath);
 
+                void exportImageFromDigitalSet(const DigitalSet& ds,
+                                               const Domain& domain,
+                                               const std::string& outputFilepath);
+
                 ConfigData defaultConfigData(MockDistribution& frDistr,
                                              MockDistribution& bkDistr);
 		void outputElasticaEnergy(const DigitalSet& ds, std::ostream& os);

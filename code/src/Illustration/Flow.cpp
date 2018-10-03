@@ -11,7 +11,7 @@ Flow::ConfigData Flow::defaultConfigData(MockDistribution& frDistr,
                       bkDistr,
                       0.0,
                       1.0,
-                      0.5);
+                      0.0);
 }
 
 void Flow::exportImageFromDigitalSet(const DigitalSet& ds,
@@ -22,6 +22,17 @@ void Flow::exportImageFromDigitalSet(const DigitalSet& ds,
     lb+=DGtal::Z2i::Point(-10,-10);
     ub+=DGtal::Z2i::Point(10,10);
     Image2D image( DGtal::Z2i::Domain(lb,ub) );
+    DIPaCUS::Representation::DigitalSetToImage(image, ds);
+
+    DGtal::GenericWriter<Image2D>::exportFile(outputFilepath, image);
+}
+
+void Flow::exportImageFromDigitalSet(const DigitalSet& ds,
+                                     const Domain& domain,
+                                     const std::string& outputFilepath)
+{
+
+    Image2D image( domain );
     DIPaCUS::Representation::DigitalSetToImage(image, ds);
 
     DGtal::GenericWriter<Image2D>::exportFile(outputFilepath, image);
