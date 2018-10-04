@@ -80,11 +80,15 @@ In this work, we investigate the use of a more suitable curvature estimator with
 
 
 
-A digital image is the result of some quantization process (e.g. Gauss digitization) over an object $X$ residing in some continuous space of dimension $d$. Such process is parameterized by a scale parameter $h>0$ and generates the object $D_h(X) \subset h \cdot \mathbb{Z}^d$, the digitization of $X$ in a grid space of size $h$. 
+A digital image is the result of some quantization process over an object $X$ residing in some continuous space of dimension $d$.  For example, the Gauss digitization of $X$ with grid step $h>0$ is defined as
+
+\begin{align*}
+	D_h(X) = \left( \frac{1}{h} \cdot X \right) \cap \mathbb{Z}^d.
+\end{align*} 
 
 Given a object $X$ and its digitization $D_h(X)$, a digital estimator $\hat{u}$ for some geometric quantity $u$ is intended to compute $u(X)$ by using only the digitization. This problem is not well posed, as the same digital object could be the digitization of infinitely others objects very different from $X$. Therefore, a characterization of what is a good estimator is necessary.
 
-Let $u$ be some geometric quantity of $X$ (e.g. tangent, curvature). We wish to devise a digital estimator $\hat{u}$ for $u$. It is reasonable to state that $\hat{u}$ is a good estimator if $\hat{u}(D_h(X))$ converges to $u(X)$ as we refine our grid. For example, counting pixels is a convergent estimator for area; but counting boundary pixels is not a convergent estimator for perimeter. Multigrid convergence is the mathematical tool that makes this definition precise.
+Let $u$ be some geometric quantity of $X$ (e.g. tangent, curvature). We wish to devise a digital estimator $\hat{u}$ for $u$. It is reasonable to state that $\hat{u}$ is a good estimator if $\hat{u}(D_h(X))$ converges to $u(X)$ as we refine our grid. For example, counting pixels is a convergent estimator for area; but counting boundary pixels is not a convergent estimator for perimeter. Multigrid convergence is the mathematical tool that makes this definition precise. In the following, let the $h$-frontier of $D_h(X)$ to be defined as $\partial D_h(X) = \partial \left( \frac{1}{h} \cdot X \right) \cap \mathbb{Z}^2$.
 
 
 	
@@ -209,7 +213,7 @@ Generally, an invariant $\sigma$ is a real-valued function from some space $\Ome
 	In \cite{coeurjolly13}, the authors combine the approximation\eqref{eq:curvature_approximation} and digital estimator \eqref{eq:digital_estimator_area} to define a multigrid convergent estimator for curvature.
 
 	\begin{ddef}[Integral Invariant Curvature Estimator]
-		Let $D \in h \cdot \mathbb{Z}^2$ a digital shape. The integral invariant curvature estimator is defined as
+		Let $D \subset h \cdot \mathbb{Z}^2$ a digital shape. The integral invariant curvature estimator is defined as
 		
 		\begin{align*}
 			\hat{\kappa}_{r}(D,x,h) \coloneqq \frac{3}{r^3} \left( \frac{\pi r^2}{2} - \widehat{Area} \left( B_{r/h} ( \frac{1}{h} \cdot x ) \cap D, h \right) \right).
@@ -223,14 +227,14 @@ Generally, an invariant $\sigma$ is a real-valued function from some space $\Ome
 \section{Digital Curvature Evolution Model}
 
 
-Our goal is to evolve a digital object in order to minimize the elastica energy along its contour. Our strategy is to define the digital elastica by using the unitary length and integral invariant estimators and minimize its underlying binary energy. However, the derived energy is of order four and difficult to optimize. Therefore, we propose an indirect method to minimize the digital elastica. Such method can be interpreted as a gradient flow of the elastica energy, but it is completely defined in discrete terms.
+Our goal is to evolve a digital object in order to minimize the elastica energy along its contour. Our strategy is to define the digital elastica by using the elementary length and the integral invariant estimators and minimize its underlying binary energy. However, the derived energy is of order four and difficult to optimize. Therefore we propose an indirect method to minimize it. Such method can be interpreted as a gradient flow of the elastica energy, but it is completely defined in discrete terms.
 
 
 
 
 \subsection{Ideal Global Optimization Model}
 
-We evaluate the quality of a segmentation by evaluating the elastica energy over the contour of the segmented region $X$. In continuous terms, the elastica energy is defined as:
+We evaluate the quality of a boundary by evaluating the elastica energy along it. In continuous terms, with $\alpha,\beta > 0$, the elastica energy along the boundary of a region $X$ is defined as:
 
 \begin{align*}
 	E(X) = \int_{\partial X}{(\alpha + \beta \kappa^2) ds}.
@@ -245,7 +249,7 @@ We are going to use the digital version of the energy, using multigrid convergen
 
 where $\partial D_h(X)$ denotes the $4$-connected boundary of $D_h(X)$.
 
-A global method for energy \eqref{eq:digital-energy} necessarily need to restrict the optimization domain to consistent regions. We cannot proper estimate length and curvature along anything different from a boundary, and in our case, a closed boundary. Let $\Omega$ to denote the digital domain. Denote by $\mathcal{T}$ the family of subsets of $\Omega$ satisfying the property
+A segmentation energy can be devised by including some data attachement term $g$ in \eqref{eq:digital-energy}, but we need to restrict the optimization domain to consistent regions. We cannot proper estimate length and curvature along anything different from a boundary. Let $\Omega$ to denote the digital domain and $\mathcal{T}$ the family of subsets of $\Omega$ satisfying the property
 
 \begin{align*}
 	D \in \mathcal{T} \implies D \subset \Omega \text{ and } 4B(\partial D),
@@ -254,35 +258,44 @@ A global method for energy \eqref{eq:digital-energy} necessarily need to restric
 where $4B(\cdot)$ is the $4$-connected closed boundary predicate. 
 
 
-The global optimization problem can be stated as:
+For some $\gamma>0$, the segmented region $D^\star$ is defined as
+
+\begin{align}
+	D^{\star} = \argmin_{D \in \mathcal{T}}{\sum_{x \in \partial D}{ \hat{s}(x)\left(\; \alpha + \beta \hat{\kappa_{r}}^2(D,x,h) \; \right)} + \gamma \cdot g(D).}
+	\label{eq:ideal_optimization_energy}
+\end{align}
+
+In its integer linear programming model \cite{schoenemann09}, Schoenemann restricts the optimization domain by enforcing a set of constraints that enforces compact sets as solutions. However, the main difficulty here is the energy order, which is of order four. We are going to explore an alternative strategy.
+
+
+
+\subsection{Non Zero Curvature Identification}
+
+We can use the curvature estimator to detect regions of positive curvature. Given a digital object $D$ embedded in a domain $\Omega$, we define its pixel boundary set $P(D)$ as
 
 \begin{align*}
-	\min_{D \in \mathcal{T}}{\sum_{x \in \partial D}{ \hat{s}(x)\left(\; \alpha + \beta \hat{\kappa_{r}}^2(D,x,h) \; \right)}.}
+	P(D) = \left\{ \: x \; | \; x \in D, |\mathcal{N}_4(x) \cap D|<4 \: \right\},
 \end{align*}
 
-In its integer linear programming model \cite{schoenemann09}, Schoenemann restricts the optimization domain by enforcing a set of constraints that enforces compact sets as solutions. However, the main difficulty here is the energy order, which is of order four if we substitute the estimators by its definitions. We are going to explore an alternative strategy.
-
-
-
-\subsection{Corner detector}
-
-We can use the curvature estimator to detect regions of positive curvature. Given a digital object $D$ embedded in a domain $\Omega$, we define the following regions
+where $\mathcal{N}_4(x)$ denotes the $4$-adjacent neighbot set of $x$. The following optimization regions will be important in our process.
 
 \[\arraycolsep=5pt
 \begin{array}{rlr}
-	O &= \partial D & \text{Optimization region.} \\
-	F &= D - \partial D & \text{Trust foreground.} \\
+	O &= P(D) & \text{Optimization region.} \\
+	F &= D - P(D) & \text{Trust foreground.} \\
 	B &= \Omega - D & \text{Trust background.} \\
-	A &= \partial F & \text{Application region}.
+	A &= P(F) \cup P(B) & \text{Application region}.
 \end{array}
 \]
 
-We proceed by minimizing the squared curvature energy along $A$ with respect to the optimization region $O$. We define a binary energy to be minimized over the set of variables $Y \in \{0,1\}^{|O|}$. In the following, we write $\hat{\kappa_r}(D,p,h)$ simply as $\hat{\kappa_r}(p)$.
+We proceed by minimizing the squared curvature energy along $A$ with respect to the optimization region $O$. 
 
 \begin{align}			
-	\min_{Y} \sum_{p \in A}{\hat{\kappa}_{r}^2(p)}.
+	Y^{\star} = \argmin_{Y \in \{0,1\}^{|O|}} \sum_{x \in A}{\hat{\kappa}_{r}^2(x)}.
 	\label{eq:corner-detector-opt-not-exp}
 \end{align}
+
+Note that we are minimizing second term of equation \eqref{eq:ideal_optimization_energy}.
 
 By setting $c_1 = (3/r^3)^2$ and $c_2=\pi r^2/2$ and expanding the squared curvature estimator in \eqref{eq:corner-detector-opt-not-exp}.
 
