@@ -90,6 +90,11 @@ namespace BinOCS
             void showManyImages(std::string title, int nArgs, const cv::Mat& img1, const cv::Mat& img2);
 
             cv::Rect computeBoundingBox(const cv::Mat& img);
+
+            void defaultValues(Model::GrabCorrectionInput& gci);
+            void readInput(Model::GrabCorrectionInput& gci,
+                           int argc,
+                           char** argv);
         }
     }
 }
