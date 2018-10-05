@@ -234,10 +234,10 @@ Our goal is to evolve a digital object in order to minimize the elastica energy 
 
 \subsection{Ideal Global Optimization Model}
 
-We evaluate the quality of a boundary by evaluating the elastica energy along it. In continuous terms, with $\alpha,\beta > 0$, the elastica energy along the boundary of a region $X$ is defined as:
+We evaluate the quality of a boundary by evaluating the elastica energy along it. In continuous terms, the elastica energy along the boundary of a region $X$ is defined as 
 
 \begin{align*}
-	E(X) = \int_{\partial X}{(\alpha + \beta \kappa^2) ds}.
+	E(X) = \int_{\partial X}{(\alpha + \beta \kappa^2) ds}, \quad \alpha,\beta >= 0
 \end{align*}
 
 We are going to use the digital version of the energy, using multigrid convergent estimators. The energy, in this case, is also multigrid convergent.
@@ -277,7 +277,7 @@ We can use the curvature estimator to detect regions of positive curvature. Give
 	P(D) = \left\{ \: x \; | \; x \in D, |\mathcal{N}_4(x) \cap D|<4 \: \right\},
 \end{align*}
 
-where $\mathcal{N}_4(x)$ denotes the $4$-adjacent neighbot set of $x$. The following optimization regions will be important in our process.
+where $\mathcal{N}_4(x)$ denotes the $4$-adjacent neighbor set of $x$. The following optimization regions will be important in our process.
 
 \[\arraycolsep=5pt
 \begin{array}{rlr}
@@ -288,57 +288,55 @@ where $\mathcal{N}_4(x)$ denotes the $4$-adjacent neighbot set of $x$. The follo
 \end{array}
 \]
 
-We proceed by minimizing the squared curvature energy along $A$ with respect to the optimization region $O$. 
+Note that our definition of the optimization region guarantee that only connected solutions are produced. The application region is defined around $O$ for symetric issues. We proceed by minimizing the squared curvature energy along $A$ with respect to the optimization region $O$. 
 
 \begin{align}			
-	Y^{\star} = \argmin_{Y \in \{0,1\}^{|O|}} \sum_{x \in A}{\hat{\kappa}_{r}^2(x)}.
-	\label{eq:corner-detector-opt-not-exp}
+	Y^{\star} = \argmin_{Y \in \{0,1\}^{|O|}} \sum_{p \in A}{\hat{\kappa}_{r}^2(p)}.
+	\label{eq:curvature_highlighting_opt_problem}
 \end{align}
 
-Note that we are minimizing second term of equation \eqref{eq:ideal_optimization_energy}.
-
-By setting $c_1 = (3/r^3)^2$ and $c_2=\pi r^2/2$ and expanding the squared curvature estimator in \eqref{eq:corner-detector-opt-not-exp}.
+We expand the squared curvature esimator for a single application point $p$ using \eqref{eq:curvature_approximation}. Define constants $c_1 = (3/r^3)^2$, $c_2=\pi r^2/2$. Hence,
 
 \begin{align*}
-\hat{\kappa}_{II}^2 &= c_1 \cdot \big(\: c_2 - \sigma_{D,r}(p) \: \big)^2 \\
-&= c_1 \cdot \big(\: c_2^2 - 2\sigma_{D,r}(p) + \sigma_{D,r}(p)^2 \: \big).
+\hat{\kappa}_{r}^2(p) &= c_1 \cdot \big(\: c_2 - \sigma_{D,r}(p) \: \big)^2 \\
+&= c_1 \cdot \big(\: c_2^2 - 2c_2\sigma_{D,r}(p) + \sigma_{D,r}(p)^2 \: \big).
 \end{align*}
 
-We define $F_r(p) \subset F$ as the intersection points between the estimating ball applied at $p$ with the foreground region. The subset $Y_r(p) \subset Y$ is defined  analagously. Substituting $\sigma_{D,r}(p) = |F_r(p)| + \sum_{y_i \in Y_r(p)}{y_i}$.
+Let $F_r(p) \subset F$ to denote the intersection set between the estimating ball applied at $p$ with the foreground region. The subset $Y_r(p) \subset Y$ is defined  analagously. Substituting $\sigma_{D,r}(p) = |F_r(p)| + \sum_{y_i \in Y_r(p)}{y_i}$.
 
 	\begin{align*}
-		\frac{\hat{\kappa}_{r}^2}{c_1} &= \left( \; \sum_{y_i \in Y_r(p)}{y_i} \; \right) ^2 -2 \cdot c_2\cdot \sum_{y_i \in Y_r(p)}{y_i} + 2 |F_r(p)| \cdot \sum_{ y_i \in Y_{p} }{y_i} \\[1em]
-		&= \sum_{y_i \in Y_{p}}{y_i^2} + \sum_{ y_i,y_j \in Y_{p} }{y_iy_j} \quad - 2 (c_2-|F_p|)\cdot \sum_{y_i \in Y_{p}}{y_i}
+		\hat{\kappa}_{r}^2(p) &= c_1 \cdot \left( \; c_2^2 - 2c_2 \cdot |F_r(p)| + |F_r(p)|^2 + 2\left( |F_r(p)| - c_2 \right) \cdot \sum_{y_i \in Y_r(p)}{y_i}  + \left( \sum_{y_i \in Y_r(p)}{y_i} \; \right) ^2 \right) \\[1em]
 	\end{align*}
 	
-	Which can be further simplified by using the binary character of the variables.
+	Packing constants $C=c_2^2 - 2c_2 \cdot |F_r(p)| + |F_r(p)|^2$.
 	
 	\begin{align*}
-		\frac{\hat{\kappa}_{r}^2}{c_1} =1/2 \cdot \sum_{ y_i,y_j \in Y_{p} }{y_iy_j} \quad  - \;(c_2-|F_p|-1/2)\cdot \sum_{y_i \in Y_{p}}{y_i}
+		\hat{\kappa}_{r}^2(p) = c_1 \cdot \left( C + 2\left( |F_r(p)| - c_2 \right) \cdot \sum_{y_i \in Y_r(p)}{y_i} + \sum_{y_i \in Y_r(p)}{y_i^2} + 2 \cdot \sum_{ \substack{y_i,y_j \in Y_r(p) \\ i<j} }{y_iy_j}  \right)
 	\end{align*}
+	
+	By ignoring constant and multiplications factors and using the binary character of the variables, problem \eqref{eq:curvature_highlighting_opt_problem} is equivalent to
 
-	Ignoring multiplication factor $c_1$, the optimization problem \eqref{eq:corner-detector-opt-not-exp} is equivalent to
 	
 \begin{align}			
-	\min_{Y} \sum_{p \in A}\left( { 1/2 \cdot \sum_{ y_i,y_j \in Y_{p} }{y_iy_j} \quad  - \;(c_2-|F_p|-1/2)\cdot \sum_{y_i \in Y_{p}}{y_i} } \right).
-	\label{eq:corner-detector-opt-exp}
+	Y^{\star} = \argmin_{Y \in \{0,1\}^{|O|}} \sum_{p \in A}{ \left( { (1+ |F_r(p)|-c_2) \cdot \sum_{y_i \in Y_r(p)}{y_i} } + \sum_{ \substack{y_i,y_j \in Y_r(p) \\ i<j} }{y_iy_j} \right) }.
+	\label{eq:curvature_highlighting_simplified}
 \end{align}
 
-We use $r=3$ and QPBOP to optimize \eqref{eq:corner-detector-opt-exp}. The optimization method is further discussed in section \ref{sec:optimization_method}. Evaluation of the model on a digital square produces figure \ref{fig:naive_solution}.
+We use $r=3$ and QPBOP to optimize \eqref{eq:curvature_highlighting_simplified}. The optimization method is further discussed in section \ref{sec:optimization_method}. Evaluation of the model on a digital square produces figure \ref{fig:naive_solution}.
 
 
 	\begin{figure}[!ht]
 		\center
 		\subfloat[\label{fig:naive_solution}]{%
-		\includegraphics[scale=2.0]{images/qbo_1D_naive_solution_noneigh.png}
+		\includegraphics[scale=1.0]{images/qbo_1D_naive_solution_noneigh.png}
 		}%
 		\hspace{40pt}
 		\subfloat[\label{fig:naive_solution_updated}]{%
-		\includegraphics[scale=2.0]{images/qbo_1D_naive_solution_noneigh_updated.png}}%
+		\includegraphics[scale=1.0]{images/qbo_1D_naive_solution_noneigh_updated.png}}%
 		\hspace{40pt}
 		\subfloat[\label{fig:opt_regions}]{%
 \includegraphics[scale=1.0]{images/opt-regions.png}}%		
-		\caption{Figure (a): White pixels are labeled-one variables; Figure (b): Removal of labeled-one pixels; Figure (c): Extended application region: Background (light gray); Foreground (white); Application (dark gray); and Optimization (black) regions.}	
+		\caption{Figure (a): White pixels are labeled-one variables; Figure (b): Removal of labeled-one pixels; Figure (c): Regions of interest: Background (black); Foreground (dark gray); Application (light gray); and Optimization (white) regions.}	
 					
 	\end{figure}
 
@@ -346,7 +344,7 @@ We interpret positive curvature at some point $p$ as a lack of intersection poin
 
 \subsection{Digital Curvature Flow}
 
-We derive the digital curvature flow by iteractively evaluation of model \eqref{eq:corner-detector-opt-exp} with a slight modification on the application region. By matters of symmetry, application region is extended to contain $\partial B$. Moreover, better results were achieved by further extension of application region. 
+We derive the digital curvature flow by evaluating iteractively model \eqref{eq:curvature_highlighting_simplified} with a slight modification. Better results are achieved by extending the application region. 
 
 \begin{align*}
 	A = \bigcup_{i<=2}{ \partial F^{-i} \cup \partial B^{-i} },
@@ -388,13 +386,13 @@ At each flow step, the model is evaluated twice. In the second evaluation, we ta
 
 \subsection{Optimization Method}\label{sec:optimization_method}
 
-	Energy \eqref{eq:corner-detector-opt-exp} is non-submodular and optimizing it is a NP-hard problem, which restrict ourselves to heuristics and approximation algorithms. The QPBO method \cite{kolmogorov07} transforms the original problem in a max-flow/min-cut problem and returns a full optimal labeling for submodular energies. For non-submodular energies the method is guaranteed to return a partial labeling with the property that the set of labeled variables is part of an optimal solution. That property is called partial optimality. 
+	Energy \eqref{eq:curvature_highlighting_simplified} is non-submodular and optimizing it is a NP-hard problem, which restrict ourselves to heuristics and approximation algorithms. The QPBO method \cite{kolmogorov07} transforms the original problem in a max-flow/min-cut formulation and returns a full optimal labeling for submodular energies. For non-submodular energies the method is guaranteed to return a partial labeling with the property that the set of labeled variables is part of an optimal solution. That property is called partial optimality. 
 
 	In practice, QPBO can leave many pixels unlabeled. There exist two extensions of QPBO that soften this limitation: QPBOI (improve) and QPBOP (probe). The first is an approximation method that is guaranteed to not increase the energy, but we lost the property of partial optimality. The second is an exact method which is reported to label more variables than QPBO. We use QPBOP. The extended application region also contributes for a higher number of labeled variables
 	
 \section{Application in Image Segmentation}
 
-The digital curvature flow can be applied as a post-processing step in a image segmentaion framework. We use graph cut \cite{boykov01} as segmentation method and we execute the flow for $n$ iterations. We include the graph cut data attachement term $g$ and standard length penalization $s$ to the flow energy.
+The digital curvature flow can be applied as a post-processing step in a image segmentation framework. We use graph cut \cite{boykov01} as segmentation method and we execute the flow for $n$ iterations. We include the graph cut data attachement term $g$ and standard length penalization $s$ to the flow energy.
 
 
 
@@ -411,16 +409,32 @@ The digital curvature flow can be applied as a post-processing step in a image s
 
 Figure \ref{fig:butterfly_results} display some results.
 
+\section{Conclusion}
+The integral invariant estimator for curvature is suitable for use in optimization model in image processing and can be applied together with classical penalization terms as length and data attachement. We demonstrated its power by deriving a digital curvature flow and we showed how it can be used as a post-processing tool in an image segmentation framework. 
+
+We have some directions for future work. First, optimize the code and evaluate a runtime analysis to compare with competitor methods. We also pretend to reformulate the model in \cite{schoenemann09} using the digital estimator $\hat{\kappa_r}$. We believe that we can recover better results and in a lower running time.
+	
 	\begin{figure}[!ht]
 		\center
-		\subfloat[\label{fig:butterfly_base}]{%
-		\includegraphics[scale=0.5]{images/butterfly/baseImg.jpg}
+		\subfloat[\label{fig:butterfly_initial}]{%
+		\includegraphics[scale=0.5]{images/butterfly/initial.jpg}
+		}
+		
+		\subfloat[\label{fig:butterfly_gc}]{%
+		\includegraphics[scale=0.25]{images/butterfly/gc-marks.jpg}
 		}%
-		\hspace{15pt}
-		\subfloat[\label{fig:butterfly_corrected}]{%
-		\includegraphics[scale=0.5]{images/butterfly/c1d1-it5.jpg}
+		\subfloat[\label{fig:butterfly_cor}]{%
+		\includegraphics[scale=0.25]{images/butterfly/cor.jpg}
+		}
+		
+		\subfloat[\label{fig:butterfly_gc_m1}]{%
+		\includegraphics[scale=0.5]{images/butterfly/gc-mark-1.jpg}
 		}%
-		\caption{Figure \ref{fig:butterfly_base} is the graph cut segmentation and figure \ref{fig:butterfly_corrected} the corrected image after 5 iterations of the flow.}
+		\hspace{15pt}		
+		\subfloat[\label{fig:butterfly_cor_gc1}]{%
+		\includegraphics[scale=0.5]{images/butterfly/cor-mark-1.jpg}
+		}		
+		\caption{Digital flow post-processing results for a total of 5 iterations ($\alpha=0.1, \beta=1,\gamma=1$). Pictures in order: (a) Initial image with seed; (b) Grab-cut result; (c) Digital flow post-processing; (d) Zoomed region on Grab-cut result; (e) The same zoomed region on digital flow result. }
 		\label{fig:butterfly_results}
 	\end{figure}
 
