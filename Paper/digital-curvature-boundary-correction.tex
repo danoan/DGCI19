@@ -82,33 +82,50 @@ In this work, we investigate the use of a more suitable curvature estimator with
 
 
 
-A digital image is the result of some quantization process over an object $X$ residing in some continuous space of dimension $d$.  For example, the Gauss digitization of $X$ with grid step $h>0$ is defined as
+A digital image is the result of some quantization process over an object $X$ lying in some continuous space of dimension $d$.  For example, the Gauss digitization of $X$ with grid step $h>0$ is defined as
 
 \begin{align*}
-	D_h(X) = \left( \frac{1}{h} \cdot X \right) \cap \mathbb{Z}^d.
+	D_h(X) = X \cap (h\mathbb{Z})^d.
 \end{align*} 
 
 Given a object $X$ and its digitization $D_h(X)$, a digital estimator $\hat{u}$ for some geometric quantity $u$ is intended to compute $u(X)$ by using only the digitization. This problem is not well posed, as the same digital object could be the digitization of infinitely others objects very different from $X$. Therefore, a characterization of what is a good estimator is necessary.
 
-Let $u$ be some geometric quantity of $X$ (e.g. tangent, curvature). We wish to devise a digital estimator $\hat{u}$ for $u$. It is reasonable to state that $\hat{u}$ is a good estimator if $\hat{u}(D_h(X))$ converges to $u(X)$ as we refine our grid. For example, counting pixels is a convergent estimator for area; but counting boundary pixels is not a convergent estimator for perimeter. Multigrid convergence is the mathematical tool that makes this definition precise. In the following, let the $h$-frontier of $D_h(X)$ to be defined as $\partial D_h(X) = \partial \left( \frac{1}{h} \cdot X \right) \cap \mathbb{Z}^2$.
+Let $u$ be some geometric quantity of $X$ (e.g. tangent,
+curvature). We wish to devise a digital estimator $\hat{u}$ for
+$u$. It is reasonable to state that $\hat{u}$ is a good estimator if
+$\hat{u}(D_h(X))$ converges to $u(X)$ as we refine our grid. For
+example, counting pixels is a convergent estimator for area (with a
+rescale of $h^2$); but counting boundary pixels (with a rescale of
+$h$) is not a convergent estimator for perimeter. Multigrid
+convergence is the mathematical tool that makes this definition
+precise. Given any subset $Z$ of $(h\mathbb{Z})^d$, we can embed it as
+a union of axis-aligned squares with edge length $h$ centered on the
+point of $Z$. The topological boundary of this union of cubes is
+called {\em $h$-frontier} of $Z$. When $Z=D_h(X)$, we call it {\em
+  $h$-boundary of $X$} and denote it by $\partial_h X$. 
+%% In the following, let the $h$-frontier of $D_h(X)$ to be defined as $\partial D_h(X) = \partial \left( \frac{1}{h} \cdot X \right) \cap \mathbb{Z}^2$.
 
-
-	
-	\begin{ddef}[Multigrid convergence for local geometric quantites]
-		A local discrete geometric estimator $\hat{u}$ of some geometric quantity $u$ is multigrid convergent for the family $\mathbb{X}$ if and only if, for any $X \in \mathbb{X}$, there exists a grid step $h_X>0$ such that the estimate $\hat{u}(D_h(X),\hat{x},h)$ is defined for all $\hat{x} \in \partial_hX$ with $ 0 < h < h_X$, and for any $x \in \partial X$,
+\begin{ddef}[Multigrid convergence for local geometric quantites]
+  A local discrete geometric estimator $\hat{u}$ of some geometric
+  quantity $u$ is (uniformly) multigrid convergent for the family $\mathbb{X}$ if
+  and only if, for any $X \in \mathbb{X}$, there exists a grid step
+  $h_X>0$ such that the estimate $\hat{u}(D_h(X),\hat{x},h)$ is
+  defined for all $\hat{x} \in \partial_hX$ with $ 0 < h < h_X$, and
+  for any $x \in \partial X$,
 		
-		\begin{equation}
-			\forall \hat{x} \in  \partial_hX \text{ with } \norm{ \hat{x} - x }_{\infty} \leq h, \norm{ \hat{u}(D_h(X),\hat{x},h) - u(X,x)} \leq \tau_{X,x}(h),			
-		\end{equation}
-		
-		where $\tau_{X,x}:\mathbb{R}^{+}\setminus\{0\} \rightarrow \mathbb{R}^{+}$ has null limit at $0$. This function defines the speed of convergence of $\hat{u}$ towards $u$ at point $x$ of $X$. The convergence is uniform for $X$ when every $\tau_{X,x}$ is bounded from above by a function $\tau_X$ independent of $x \in \partial X$ with null limit at $0$.
-	\end{ddef}
+  \begin{equation}
+    \forall \hat{x} \in  \partial_hX \text{ with } \norm{ \hat{x} - x }_{\infty} \leq h, \norm{ \hat{u}(D_h(X),\hat{x},h) - u(X,x)} \leq \tau_{X}(h),			
+  \end{equation}
+  
+  where $\tau_{X}:\mathbb{R}^{+}\setminus\{0\} \rightarrow
+  \mathbb{R}^{+}$ has null limit at $0$. This function defines the
+  speed of convergence of $\hat{u}$ towards $u$ for $X$.
+\end{ddef}
+	
+For a global geometric quantity (e.g. perimeter, area, volume), the definition remains the same, except that the mapping between $\partial X$ and $\partial_h X$ is no longer necessary.
 	
 	
-	For a global geometric quantity (e.g. perimeter, area, volume), the definition remains the same, except that the mapping between $\partial X$ and $\partial_h X$ is no longer necessary.
-	
-	
-	Multigrid convergent estimators give us a quality certificate and should be preferred over non-multigrid convergent ones. In the next section we describe two estimators that will be important for our purpose.
+Multigrid convergent estimators give us a quality certificate and should be preferred over non-multigrid convergent ones. In the next section we describe two estimators that will be important for our purpose.
 	
 
 
