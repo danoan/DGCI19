@@ -345,7 +345,7 @@ We interpret positive curvature at some point $p$ as a lack of intersection poin
 
 \subsection{Digital Curvature Flow}
 
-We derive the digital curvature flow by evaluating iteractively model \eqref{eq:curvature_highlighting_simplified} with a slight modification. Better results are achieved by extending the computation region. 
+We derive the digital curvature flow by evaluating iteractively model \eqref{eq:curvature_highlighting_simplified} with a slight modification. We extend the computation region to accomodate more level sets of the original object. As a practical consequence, the zones of high curvature are more likely to be detected, leading to a smaller number of unlabeled pixels by QPBOP.
 
 \begin{align*}
 	A = \bigcup_{i\leq2}{ \partial F^{-i} \cup \partial B^{-i} },
@@ -408,7 +408,7 @@ The digital curvature flow can be applied as a post-processing step in a image s
 	\end{align*}
 
 
-Figure \ref{fig:butterfly_results} display some results.
+In Figure \ref{fig:butterfly_results} we show some of the results. 
 
 \section{Conclusion}
 The integral invariant estimator for curvature is suitable for use in optimization model in image processing and can be applied together with classical penalization terms as length and data attachement. We demonstrated its power by deriving a digital curvature flow and we showed how it can be used as a post-processing tool in an image segmentation framework. 
