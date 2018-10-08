@@ -32,7 +32,7 @@ Hugues Talbot\inst{2}}
 % First names are abbreviated in the running head.
 % If there are more than two authors, 'et al.' is used.
 %
-\institute{Laboratoire de Mathematiques (LAMA), Universite Savoie Mont Blanc, Chamb\'ery, France
+\institute{Universit{\'e} Savoie Mont Blanc, LAMA, UMR CNRS 5127, F-73376, France
 \email{daniel.martins-antunes, jacques-olivier.lachaud@univ-savoie.fr} \and
 CentraleSupelec Universit\'e Paris-Saclay\\
 \email{hugues.talbot@centralesupelec.fr}}
@@ -51,9 +51,10 @@ CentraleSupelec Universit\'e Paris-Saclay\\
   to optimize.  State-of-art techniques make use of a coarse
   approximation of curvature that limit practical applications.
 
-  We argue that curvature must be computed
-  using a multigrid convergent estimator, instead, which we propose
-  in this article. We illlustrate the use of the model as a post-processing step in a
+  We argue that curvature must instead be computed using a multigrid
+  convergent estimator, and we propose in this paper a new digital
+  curvature flow which mimicks continuous curvature flow. We
+  illustrate its potential as a post-processing step to a variational
   segmentation framework.
  
 \keywords{Multigrid convergence  \and Digital estimator \and Curvature \and Shape Optimization \and Image Segmentation.}
@@ -64,15 +65,15 @@ CentraleSupelec Universit\'e Paris-Saclay\\
 \setcounter{footnote}{0}
 \section{Introduction}
 
-Geometric quantities are particularly useful as regularizers, especially when object geometry is known a priori. Length penalization is a general purpose regularizer and the literature is vast on models that make use of it \cite{casseles97,appleton05}. However, this regularizer is not suitable for the segmentation of thin and elongated objects, as it tends to return disconnected solutions. Such drawback can be overcomed by injecting curvature regularization \cite{zehiry10}.
+Geometric quantities are particularly useful as regularizers, especially when object geometry is known a priori. Length penalization is a general purpose regularizer and the literature is vast on models that make use of it \cite{casseles97,appleton05}. However, this regularizer shows its limitations when segmenting  thin and elongated objects, as it tends to return disconnected solutions. Such drawback can be overcomed by injecting curvature regularization \cite{zehiry10}.
 				
 One of the first successful uses of curvature in image processing is the inpainting algorithm described in \cite{masnou98}. The author evaluates the elastica energy along the level lines of a simply-connected image to reconstruct its occluded parts. The level lines property of non-intersection allows the construction of an efficient dynamic programming algorithm. Nonetheless, it is still a challenging task to inject curvature in the context of image segmentation. 
 
-The state-of-art methods are difficult to optimize and  not scalable \cite{zehiry10,schoenemann09,nieuwenhuis14}. In order to achieve reasonable running times, such approaches make use of a coarse and not convergent approximation of curvature, which has an important impact in the results. Recently, multigrid convergent estimators for curvature have been proposed \cite{schindele17,coeurjolly13,roussillon11}, motivating us to search for models in which they can be applied.
+The state-of-art methods are difficult to optimize and  not scalable \cite{zehiry10,schoenemann09,nieuwenhuis14}. In order to achieve reasonable running times, such approaches make use of coarse curvature estimations whose approximation error is unknown. On the other hand, improving the quality of curvature has an important impact on the accuracy of the results, but is too computationnaly costly in these methods. Recently, new multigrid convergent estimators for curvature have been proposed \cite{schindele17,coeurjolly13,roussillon11}, motivating us to search for models in which they can be applied.
 
-In this work, we investigate the use of a more suitable curvature estimator with multigrid convergent property and its application as boundary regularizer. Our method reduces the elastica energy of the contour and we illustrate its behaviour by evaluating several digital flows. Finally, we present an application of the model as a post-processing step on a segmentation framework. The code is made available at github\footnote{https://www.github.com/danoan/DGCI19}.
+In this work, we investigate the use of a more suitable curvature estimator with multigrid convergent property and its application as a boundary regularizer in a digital flow minimizing its squared curvature. Our method decreases the elastica energy of the contour and its evolution is evaluated on several digital flows. Finally, we present an application of the model as a post-processing step in a segmentation framework. The code is made available at github\footnote{https://www.github.com/danoan/DGCI19}.
 
-\textit{Outline}. Section two reviews the concept of multigrid convergence and highlights its importance on the definition of digital estimators. Next, we describe two convergent estimators used in this paper, one for tangent and the other for curvature. They are used on the optimization model and in the definition of the digital elastica. Section three describes the proposed curvature evolution model along with several illustrations of digital flows. Section four explains how to use the evolution model as a post-processing step in a image segmentation framework. Finally, sections five and six discuss the results and point directions for future work.
+\textit{Outline}. Section two reviews the concept of multigrid convergence and highlights its importance on the definition of digital estimators. Next, we describe two convergent estimators used in this paper, one for tangent and the other for curvature. They are used in the optimization model and in the definition of the digital elastica. Section three describes the proposed curvature evolution model along with several illustrations of digital flows. Section four explains how to use the evolution model as a post-processing step in a image segmentation framework. Finally, sections five and six discuss the results and point directions for future work.
 
 
 

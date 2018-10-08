@@ -7,6 +7,12 @@
 Appleton, B., Talbot, H.: Globally optimal geodesic active contours. Journal of
   Mathematical Imaging and Vision  \textbf{23}(1),  67--86 (Jul 2005)
 
+\bibitem{boykov01}
+Boykov, Y.Y., Jolly, M.P.: Interactive graph cuts for optimal boundary amp;
+  region segmentation of objects in n-d images. In: Proceedings Eighth IEEE
+  International Conference on Computer Vision. ICCV 2001. vol.~1, pp. 105--112
+  vol.1 (2001)
+
 \bibitem{casseles97}
 Caselles, V., Kimmel, R., Sapiro, G.: Geodesic active contours. International
   Journal of Computer Vision  \textbf{22}(1),  61--79 (Feb 1997)
@@ -66,16 +72,6 @@ Nieuwenhuis, C., Toeppe, E., Gorelick, L., Veksler, O., Boykov, Y.: Efficient
 Pottmann, H., Wallner, J., Huang, Q.X., Yang, Y.L.: Integral invariants for
   robust geometry processing. Computer Aided Geometric Design  \textbf{26}(1),
   37 -- 60 (2009)
-
-\bibitem{rother04}
-Rother, C., Kolmogorov, V., Blake, A.: "grabcut": Interactive foreground
-  extraction using iterated graph cuts. ACM Trans. Graph.  \textbf{23}(3),
-  309--314 (Aug 2004)
-
-\bibitem{rother07}
-Rother, C., Kolmogorov, V., Lempitsky, V.S., Szummer, M.: Optimizing binary
-  mrfs via extended roof duality. 2007 IEEE Conference on Computer Vision and
-  Pattern Recognition pp.~1--8 (2007)
 
 \bibitem{roussillon11}
 Roussillon, T., Lachaud, J.O.: Accurate curvature estimation along digital
