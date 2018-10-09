@@ -355,7 +355,7 @@ where the $-i$ exponent means an erosion by a square of side $i$. Figure \ref{fi
 
 At each flow step, the model is evaluated twice. In the second evaluation, we take care of concavities. The model is executed on $\overline{D^{+1}}$, the complement of the dilation by a square of side one, and we swap foreground and background regions. Figure \ref{fig:digital_flows} presents several digital curvature flows.
 
-Generally, best results in terms of elastica energy are achieved by using a higher number of level sets. The only exception is for the digital ball, but even for this one, the error decreases as the ball radius and level sets increases. As mentioned, the computation of the estimator in different level sets decreases the number of unlabeled pixels by QPBOP. In practice, we observe that using a ball of radius $3$ is sufficient to produce good results while achieving a reasonable running time.
+We observe that the choice of ball radius and level sets should consider the image scale. For example, using a too big radius might lead to a disconnected intersection zone and the accuracy of the estimator is compromissed. That explains the difference in flows in figure \ref{fig:digital_flows}. In practice, we observe that using a ball of radius $3$ is sufficient to produce good results while achieving a reasonable running time.
 
 	\begin{figure}[!ht]
 		\center
@@ -373,33 +373,46 @@ Generally, best results in terms of elastica energy are achieved by using a high
 \includegraphics[scale=0.025]{images/flow-b3-ls3/Flower.eps}}%
 
 		\subfloat[\label{fig:flow_ball}]{%
-		\includegraphics[scale=0.25]{images/flow-b5-ls5/InProduction.png}
+		\includegraphics[scale=0.025]{images/flow-b5-ls5/Ball.eps}
 		}%
 		\hspace{15pt}
 		\subfloat[\label{fig:flow_triangle}]{%
-		\includegraphics[scale=0.25]{images/flow-b5-ls5/InProduction.png}}%
+		\includegraphics[scale=0.03]{images/flow-b5-ls5/Triangle.eps}}%
 		\hspace{15pt}
 		\subfloat[\label{fig:flow_square}]{%
-\includegraphics[scale=0.25]{images/flow-b5-ls5/InProduction.png}}%		
+\includegraphics[scale=0.03]{images/flow-b5-ls5/Square.eps}}%		
 		\hspace{15pt}
 		\subfloat[\label{fig:flow_flower}]{%
-\includegraphics[scale=0.25]{images/flow-b10-ls10/InProduction.png}}%
+\includegraphics[scale=0.025]{images/flow-b5-ls5/Flower.eps}}%
 
 
 		\subfloat[\label{fig:flow_ball}]{%
-		\includegraphics[scale=0.25]{images/flow-b10-ls10/InProduction.png}
+		\includegraphics[scale=0.025]{images/flow-b10-ls10/Ball.eps}
 		}%
 		\hspace{15pt}
 		\subfloat[\label{fig:flow_triangle}]{%
-		\includegraphics[scale=0.25]{images/flow-b10-ls10/InProduction.png}}%
+		\includegraphics[scale=0.03]{images/flow-b10-ls10/Triangle.eps}}%
 		\hspace{15pt}
 		\subfloat[\label{fig:flow_square}]{%
-\includegraphics[scale=0.25]{images/flow-b10-ls10/InProduction.png}}%		
+\includegraphics[scale=0.03]{images/flow-b10-ls10/Square.eps}}%		
 		\hspace{15pt}
 		\subfloat[\label{fig:flow_flower}]{%
-\includegraphics[scale=0.25]{images/flow-b10-ls10/InProduction.png}}%
+\includegraphics[scale=0.025]{images/flow-b10-ls10/Flower.eps}}%
 
-		\caption{Digital curvature flow for four different shapes. A total of 20 iterations were done in each flow, curves are displayed every 2 iterations. The initial curve is in red and the end curve in blue.}
+		\subfloat[\label{fig:flow_ball}]{%
+		\includegraphics[scale=0.016]{images/flow-b5-ls5-scaled/Ball.eps}
+		}%
+		\hspace{15pt}
+		\subfloat[\label{fig:flow_triangle}]{%
+		\includegraphics[scale=0.02]{images/flow-b5-ls5-scaled/Triangle.eps}}%
+		\hspace{15pt}
+		\subfloat[\label{fig:flow_square}]{%
+\includegraphics[scale=0.02]{images/flow-b5-ls5-scaled/Square.eps}}%		
+		\hspace{15pt}
+		\subfloat[\label{fig:flow_flower}]{%
+\includegraphics[scale=0.016]{images/flow-b5-ls5-scaled/Flower.eps}}%
+
+		\caption{Digital curvature flow for four different shapes. A total of 20 iterations were done for the first two flows and 7 iterations for the third. The last flow has the same parameters and iterations of the second flow, but a different image scale. Curves are displayed every 2 iterations. The initial curve is in red and the end curve in blue.}
 		\label{fig:digital_flows}	
 	\end{figure}
 
@@ -413,13 +426,10 @@ Generally, best results in terms of elastica energy are achieved by using a high
 	\hline
 	$r=5,ls=2$ & 0.156 & 0.556 & 0.423 & 1.477 \\
 	$r=5,ls=3$ & 0.166 & 0.375 & 0.321 & 0.364 \\	 
-	$r=5,ls=4$ & 0.174 & 0.319 & 0.232 & 0.244\\
-	$\mathbf{r=5,ls=5}$ & ? & ? & ? & ?\\	
+	$r=5,ls=4$ & 0.207 & 0.508 & 0.311 & 0.174\\
+	$\mathbf{r=5,ls=5}$ & 0.193 & 0.52 & 0.278 & 0.163\\	
 	\hline
-	$r=10,ls=2$ & ? & ? & ? & ?\\
-	$r=10,ls=5$ & ? & ? & ? & ?\\
-	$r=10,ls=8$ & ? & ? & ? & ?\\
-	$\mathbf{r=10,ls=10}$ & ? & ? & ? & ?		
+	$\mathbf{r=10,ls=10}$ & 0.216 & 1.33 & 0.333 & 0.159		
 \end{tabular}
 \caption{Evaluation of digital elastica ($\alpha=0$) for start and end curves of the flow. Except for the ball, all the elastica energies were decreased significantly.}
 \label{tab:digital_glows_elastica_result}
