@@ -32,7 +32,7 @@ Hugues Talbot\inst{2}}
 % First names are abbreviated in the running head.
 % If there are more than two authors, 'et al.' is used.
 %
-\institute{Laboratoire de Mathematiques (LAMA), Universite Savoie Mont Blanc, Chamb\'ery, France
+\institute{Universit{\'e} Savoie Mont Blanc, LAMA, UMR CNRS 5127, F-73376, France
 \email{daniel.martins-antunes, jacques-olivier.lachaud@univ-savoie.fr} \and
 CentraleSupelec Universit\'e Paris-Saclay\\
 \email{hugues.talbot@centralesupelec.fr}}
@@ -51,9 +51,10 @@ CentraleSupelec Universit\'e Paris-Saclay\\
   to optimize.  State-of-art techniques make use of a coarse
   approximation of curvature that limit practical applications.
 
-  We argue that curvature must be computed
-  using a multigrid convergent estimator, instead, which we propose
-  in this article. We illlustrate the use of the model as a post-processing step in a
+  We argue that curvature must instead be computed using a multigrid
+  convergent estimator, and we propose in this paper a new digital
+  curvature flow which mimicks continuous curvature flow. We
+  illustrate its potential as a post-processing step to a variational
   segmentation framework.
  
 \keywords{Multigrid convergence  \and Digital estimator \and Curvature \and Shape Optimization \and Image Segmentation.}
@@ -64,15 +65,15 @@ CentraleSupelec Universit\'e Paris-Saclay\\
 \setcounter{footnote}{0}
 \section{Introduction}
 
-Geometric quantities are particularly useful as regularizers, especially when object geometry is known a priori. Length penalization is a general purpose regularizer and the literature is vast on models that make use of it \cite{casseles97,appleton05}. However, this regularizer is not suitable for the segmentation of thin and elongated objects, as it tends to return disconnected solutions. Such drawback can be overcomed by injecting curvature regularization \cite{zehiry10}.
+Geometric quantities are particularly useful as regularizers, especially when object geometry is known a priori. Length penalization is a general purpose regularizer and the literature is vast on models that make use of it \cite{casseles97,appleton05}. However, this regularizer shows its limitations when segmenting  thin and elongated objects, as it tends to return disconnected solutions. Such drawback can be overcomed by injecting curvature regularization \cite{zehiry10}.
 				
 One of the first successful uses of curvature in image processing is the inpainting algorithm described in \cite{masnou98}. The author evaluates the elastica energy along the level lines of a simply-connected image to reconstruct its occluded parts. The level lines property of non-intersection allows the construction of an efficient dynamic programming algorithm. Nonetheless, it is still a challenging task to inject curvature in the context of image segmentation. 
 
-The state-of-art methods are difficult to optimize and  not scalable \cite{zehiry10,schoenemann09,nieuwenhuis14}. In order to achieve reasonable running times, such approaches make use of a coarse and not convergent approximation of curvature, which has an important impact in the results. Recently, multigrid convergent estimators for curvature have been proposed \cite{schindele17,coeurjolly13,roussillon11}, motivating us to search for models in which they can be applied.
+The state-of-art methods are difficult to optimize and  not scalable \cite{zehiry10,schoenemann09,nieuwenhuis14}. In order to achieve reasonable running times, such approaches make use of coarse curvature estimations whose approximation error is unknown. On the other hand, improving the quality of curvature has an important impact on the accuracy of the results, but is too computationnaly costly in these methods. Recently, new multigrid convergent estimators for curvature have been proposed \cite{schindele17,coeurjolly13,roussillon11}, motivating us to search for models in which they can be applied.
 
-In this work, we investigate the use of a more suitable curvature estimator with multigrid convergent property and its application as boundary regularizer. Our method reduces the elastica energy of the contour and we illustrate its behaviour by evaluating several digital flows. Finally, we present an application of the model as a post-processing step on a segmentation framework. The code is made available at github\footnote{https://www.github.com/danoan/DGCI19}.
+In this work, we investigate the use of a more suitable curvature estimator with multigrid convergent property and its application as a boundary regularizer in a digital flow minimizing its squared curvature. Our method decreases the elastica energy of the contour and its evolution is evaluated on several digital flows. Finally, we present an application of the model as a post-processing step in a segmentation framework. The code is made available at github\footnote{https://www.github.com/danoan/DGCI19}.
 
-\textit{Outline}. Section two reviews the concept of multigrid convergence and highlights its importance on the definition of digital estimators. Next, we describe two convergent estimators used in this paper, one for tangent and the other for curvature. They are used on the optimization model and in the definition of the digital elastica. Section three describes the proposed curvature evolution model along with several illustrations of digital flows. Section four explains how to use the evolution model as a post-processing step in a image segmentation framework. Finally, sections five and six discuss the results and point directions for future work.
+\textit{Outline}. Section two reviews the concept of multigrid convergence and highlights its importance on the definition of digital estimators. Next, we describe two convergent estimators used in this paper, one for tangent and the other for curvature. They are used in the optimization model and in the definition of the digital elastica. Section three describes the proposed curvature evolution model along with several illustrations of digital flows. Section four explains how to use the evolution model as a post-processing step in a image segmentation framework. Finally, sections five and six discuss the results and point directions for future work.
 
 
 
@@ -81,33 +82,47 @@ In this work, we investigate the use of a more suitable curvature estimator with
 
 
 
-A digital image is the result of some quantization process over an object $X$ residing in some continuous space of dimension $d$.  For example, the Gauss digitization of $X$ with grid step $h>0$ is defined as
-
+A digital image is the result of some quantization process over an object $X$ lying in some continuous space of dimension $2$ (here).  For example, the Gauss digitization of $X$ with grid step $h>0$ is defined as
 \begin{align*}
-	D_h(X) = \left( \frac{1}{h} \cdot X \right) \cap \mathbb{Z}^d.
+	D_h(X) = X \cap (h\mathbb{Z})^2.
 \end{align*} 
 
 Given a object $X$ and its digitization $D_h(X)$, a digital estimator $\hat{u}$ for some geometric quantity $u$ is intended to compute $u(X)$ by using only the digitization. This problem is not well posed, as the same digital object could be the digitization of infinitely others objects very different from $X$. Therefore, a characterization of what is a good estimator is necessary.
 
-Let $u$ be some geometric quantity of $X$ (e.g. tangent, curvature). We wish to devise a digital estimator $\hat{u}$ for $u$. It is reasonable to state that $\hat{u}$ is a good estimator if $\hat{u}(D_h(X))$ converges to $u(X)$ as we refine our grid. For example, counting pixels is a convergent estimator for area; but counting boundary pixels is not a convergent estimator for perimeter. Multigrid convergence is the mathematical tool that makes this definition precise. In the following, let the $h$-frontier of $D_h(X)$ to be defined as $\partial D_h(X) = \partial \left( \frac{1}{h} \cdot X \right) \cap \mathbb{Z}^2$.
+Let $u$ be some geometric quantity of $X$ (e.g. tangent,
+curvature). We wish to devise a digital estimator $\hat{u}$ for
+$u$. It is reasonable to state that $\hat{u}$ is a good estimator if
+$\hat{u}(D_h(X))$ converges to $u(X)$ as we refine our grid. For
+example, counting pixels is a convergent estimator for area (with a
+rescale of $h^2$); but counting boundary pixels (with a rescale of
+$h$) is not a convergent estimator for perimeter. Multigrid
+convergence is the mathematical tool that makes this definition
+precise. Given any subset $Z$ of $(h\mathbb{Z})^2$, we can embed it as
+a union of axis-aligned squares with edge length $h$ centered on the
+point of $Z$. The topological boundary of this union of cubes is
+called {\em $h$-frontier} of $Z$. When $Z=D_h(X)$, we call it {\em
+  $h$-boundary of $X$} and denote it by $\partial_h X$. 
+%% In the following, let the $h$-frontier of $D_h(X)$ to be defined as $\partial D_h(X) = \partial \left( \frac{1}{h} \cdot X \right) \cap \mathbb{Z}^2$.
 
-
+\begin{ddef}[Multigrid convergence for local geometric quantites]
+  A local discrete geometric estimator $\hat{u}$ of some geometric
+  quantity $u$ is (uniformly) multigrid convergent for the family $\mathbb{X}$ if
+  and only if, for any $X \in \mathbb{X}$, there exists a grid step
+  $h_X>0$ such that the estimate $\hat{u}(D_h(X),\hat{x},h)$ is
+  defined for all $\hat{x} \in \partial_hX$ with $ 0 < h < h_X$, and
+  for any $x \in \partial X$,
+  \begin{equation*}
+    \forall \hat{x} \in  \partial_hX \text{ with } \norm{ \hat{x} - x }_{\infty} \leq h, \norm{ \hat{u}(D_h(X),\hat{x},h) - u(X,x)} \leq \tau_{X}(h),			
+  \end{equation*}
+  where $\tau_{X}:\mathbb{R}^{+}\setminus\{0\} \rightarrow
+  \mathbb{R}^{+}$ has null limit at $0$. This function defines the
+  speed of convergence of $\hat{u}$ towards $u$ for $X$.
+\end{ddef}
 	
-	\begin{ddef}[Multigrid convergence for local geometric quantites]
-		A local discrete geometric estimator $\hat{u}$ of some geometric quantity $u$ is multigrid convergent for the family $\mathbb{X}$ if and only if, for any $X \in \mathbb{X}$, there exists a grid step $h_X>0$ such that the estimate $\hat{u}(D_h(X),\hat{x},h)$ is defined for all $\hat{x} \in \partial_hX$ with $ 0 < h < h_X$, and for any $x \in \partial X$,
-		
-		\begin{equation}
-			\forall \hat{x} \in  \partial_hX \text{ with } \norm{ \hat{x} - x }_{\infty} \leq h, \norm{ \hat{u}(D_h(X),\hat{x},h) - u(X,x)} \leq \tau_{X,x}(h),			
-		\end{equation}
-		
-		where $\tau_{X,x}:\mathbb{R}^{+}\setminus\{0\} \rightarrow \mathbb{R}^{+}$ has null limit at $0$. This function defines the speed of convergence of $\hat{u}$ towards $u$ at point $x$ of $X$. The convergence is uniform for $X$ when every $\tau_{X,x}$ is bounded from above by a function $\tau_X$ independent of $x \in \partial X$ with null limit at $0$.
-	\end{ddef}
+For a global geometric quantity (e.g. perimeter, area, volume), the definition remains the same, except that the mapping between $\partial X$ and $\partial_h X$ is no longer necessary.
 	
 	
-	For a global geometric quantity (e.g. perimeter, area, volume), the definition remains the same, except that the mapping between $\partial X$ and $\partial_h X$ is no longer necessary.
-	
-	
-	Multigrid convergent estimators give us a quality certificate and should be preferred over non-multigrid convergent ones. In the next section we describe two estimators that will be important for our purpose.
+Multigrid convergent estimators give us a quality certificate and should be preferred over non-multigrid convergent ones. In the next section we describe two estimators that will be important for our purpose.
 	
 
 
@@ -116,15 +131,13 @@ Let $u$ be some geometric quantity of $X$ (e.g. tangent, curvature). We wish to 
 The literature presents several perimeter estimators which are multigrid convergent (see \cite{coeurjolly04,coeurjolly12} for a review), but in order to define the digital elastica we need a local estimation of length and we wish that integration over these local length elements gives a multigrid convergent estimator for the perimeter. 
 
 \begin{ddef}[Elementary Length]
-	Let a digital curve $C$ to be represented as a sequence of grid vertices in a grid cell representation of digital objects. Further, let $\hat{\theta}$ to be a multigrid convergent estimator for tangent. The elementary length $\hat{s}(e)$ at some grid edge $e\in C$ is defined as
-	
-	\begin{align*}
-		\hat{s}(e) = \hat{\theta(l)} \cdot or(e),
-	\end{align*}
-	where $or(e)$ denotes the grid edge orientation.
+  Let a digital curve $C$ to be represented as a sequence of grid vertices in a grid cell representation of digital objects (in grid with step $h$). Further, let $\hat{\theta}$ to be a multigrid convergent estimator for tangent. The elementary length $\hat{s}(e)$ at some grid edge $e\in C$ is defined as
+  \begin{align*}
+    \hat{s}(e) = h \hat{\theta}(l) \cdot or(e),
+  \end{align*}
+  where $or(e)$ denotes the grid edge orientation.
 \end{ddef}
-
-	In \cite{lachaud06}, Lachaud proves that the integration of the elementary length along the digital curve is a multigrid convergent estimator for perimeter if one uses the $\lambda$-MST \cite{lachaud07} tangent estimator.
+The integration of the elementary length along the digital curve is a multigrid convergent estimator for perimeter if one uses the $\lambda$-MST \cite{lachaud07} tangent estimator (see \cite{lachaud06}).
 
 
 
@@ -169,66 +182,62 @@ The literature presents several perimeter estimators which are multigrid converg
 
 \subsection{Integral Invariant Curvature Estimator}
 Generally, an invariant $\sigma$ is a real-valued function from some space $\Omega$ which value is unnafected by action of some group $\mathfrak{G}$ on the elements of the domain
-		
-		\begin{align*}
-			x \in \Omega, g \in \mathfrak{G}, \sigma(x) = v \longleftrightarrow \sigma(g \cdot x ) = v
-		\end{align*}
-		
-		Perimeter and curvature are examples of invariants for shapes on $\mathbb{R}^2$ with respect to the euclidean group (rigid transformations). Definition of integral area invariant and its one-to-one correspondence with curvature is proven in \cite{manay04}.
+\begin{align*}
+  x \in \Omega, g \in \mathfrak{G}, \sigma(x) = v \longleftrightarrow \sigma(g \cdot x ) = v.
+\end{align*}
+Perimeter and curvature are examples of invariants for shapes on $\mathbb{R}^2$ with respect to the euclidean group (rigid transformations). Definition of integral area invariant and its one-to-one correspondence with curvature is proven in \cite{manay04}.
 
 
 \begin{ddef}[Integral area invariant]
-	Let $X \in \mathbb{R}^2$ and $B_r(p)$ the ball of radius $r$ centered at point $p$. Further, let $\mathbbm{1}_X(\cdot)$ be the characteristic function of $X$. The integral area invariant $\alpha_{X,r}(\cdot)$ is defined as
-	
-	\begin{align*}
-		\forall p \in \partial X, \quad \sigma_{X,r}(p) = \int_{B_r(p)}{ \mathbbm{1}_X(x) dx}.
-	\end{align*}
+  Let $X \in \mathbb{R}^2$ and $B_r(p)$ the ball of radius $r$ centered at point $p$. Further, let $\mathbbm{1}_X(\cdot)$ be the characteristic function of $X$. The integral area invariant $\alpha_{X,r}(\cdot)$ is defined as
+  \begin{align*}
+    \forall p \in \partial X, \quad \sigma_{X,r}(p) = \int_{B_r(p)}{ \mathbbm{1}_X(x) dx}.
+  \end{align*}
 \end{ddef}
 
 
-	The value $\sigma_{X,r}(p)$ is the intersection area of ball $B_r(p)$ with shape $X$. By locally approximating the shape at point $p \in X$, one can rewrite the intersection area $\sigma_{X,r}(p)$ in the form of the Taylor expansion \cite{pottman09}
+The value $\sigma_{X,r}(p)$ is the intersection area of ball $B_r(p)$ with shape $X$. By locally approximating the shape at point $p \in X$, one can rewrite the intersection area $\sigma_{X,r}(p)$ in the form of the Taylor expansion \cite{pottman09}
 	
-		\begin{align*}
-			\sigma_{X,r}(p) = \frac{\pi}{2}r^2 - \frac{\kappa(X,p)}{3}r^3 + O(r^4),
-		\end{align*}
+\begin{align*}
+  \sigma_{X,r}(p) = \frac{\pi}{2}r^2 - \frac{\kappa(X,p)}{3}r^3 + O(r^4),
+\end{align*}
 		
-	where $\kappa(X,p)$ is the curvature of $X$ at point $p$. By isolating $\kappa$ we can define a curvature estimator
+where $\kappa(X,p)$ is the curvature of $X$ at point $p$. By isolating $\kappa$ we can define a curvature estimator
 	
-	\begin{align}
-		\tilde{\kappa}(p) \coloneqq \frac{3}{r^3}\left( \frac{\pi r^2}{2} - \sigma_{X,r}(p) \right),
-		\label{eq:curvature_approximation}
-	\end{align}
+\begin{align}
+  \tilde{\kappa}(p) \coloneqq \frac{3}{r^3}\left( \frac{\pi r^2}{2} - \sigma_{X,r}(p) \right),
+  \label{eq:curvature_approximation}
+\end{align}
 	
-	Such approximation is convenient as one can simply devise a multigrid convergent estimator for area.
+Such approximation is convenient as one can simply devise a multigrid convergent estimator for area.
 
-	\begin{ddef}	
-		Given a digital shape $D \subset h \cdot \mathbb{Z}^2$, a multigrid convergent estimator for area $\widehat{Area}(D,h)$ is defined as	
+\begin{ddef}	
+  Given a digital shape $D \subset (h \mathbb{Z})^2$, a multigrid convergent estimator for area $\widehat{Area}(D,h)$ is defined as	
 		
-		\begin{align}
-			\widehat{Area}(D,h) \coloneqq h^2\text{Card}\left( D \right).			
-			\label{eq:digital_estimator_area}
-		\end{align}
-
-	\end{ddef}
+  \begin{align}
+    \widehat{Area}(D,h) \coloneqq h^2\text{Card}\left( D \right).	
+    \label{eq:digital_estimator_area}
+  \end{align}
+\end{ddef}
 	
-	In \cite{coeurjolly13}, the authors combine the approximation\eqref{eq:curvature_approximation} and digital estimator \eqref{eq:digital_estimator_area} to define a multigrid convergent estimator for curvature.
+In \cite{coeurjolly13}, the authors combine the approximation\eqref{eq:curvature_approximation} and digital estimator \eqref{eq:digital_estimator_area} to define a multigrid convergent estimator for curvature.
 
-	\begin{ddef}[Integral Invariant Curvature Estimator]
-		Let $D \subset h \cdot \mathbb{Z}^2$ a digital shape. The integral invariant curvature estimator is defined as
-		
-		\begin{align*}
-			\hat{\kappa}_{r}(D,x,h) \coloneqq \frac{3}{r^3} \left( \frac{\pi r^2}{2} - \widehat{Area} \left( B_{r/h} ( \frac{1}{h} \cdot x ) \cap D, h \right) \right).
-		\end{align*}
-	\end{ddef}
-	
+\begin{ddef}[Integral Invariant Curvature Estimator]
+  Let $D \subset (h \mathbb{Z})^2$ a digital shape. The integral invariant curvature estimator is defined as
+  \begin{align*}
+    \hat{\kappa}_{r}(D,x,h) \coloneqq \frac{3}{r^3} \left( \frac{\pi r^2}{2} - \widehat{Area} \left( B_{r} ( x ) \cap D, h \right) \right).
+    %% \hat{\kappa}_{r}(D,x,h) \coloneqq \frac{3}{r^3} \left( \frac{\pi r^2}{2} - \widehat{Area} \left( B_{r/h} ( \frac{1}{h} \cdot x ) \cap D, h \right) \right).
+  \end{align*}
+\end{ddef}
 
-	The estimator is robust to noise and can be extended to estimate the mean curvature of three dimensional shapes.
-	
+
+The estimator is robust to noise and can be extended to estimate the mean curvature of three dimensional shapes.
+
 
 \section{Digital Curvature Evolution Model}
 
 
-Our goal is to evolve a digital object in order to minimize the elastica energy along its contour. Our strategy is to define the digital elastica by using the elementary length and the integral invariant estimators and minimize its underlying binary energy. However, the derived energy is of order four and difficult to optimize. Therefore we propose an indirect method to minimize it. Such method can be interpreted as a gradient flow of the elastica energy, but it is completely defined in discrete terms.
+Our goal is to deform a digital object in order to minimize the elastica energy along its contour. Our strategy is to define the digital elastica by using the elementary length and the integral invariant curvature estimators and minimize its underlying binary energy. However, the derived energy is of order four and difficult to optimize. Therefore we propose an indirect method to minimize it. Such method can be interpreted as a gradient flow of the elastica energy, but it is completely defined in discrete terms.
 
 
 
@@ -236,33 +245,27 @@ Our goal is to evolve a digital object in order to minimize the elastica energy 
 \subsection{Ideal Global Optimization Model}
 
 We evaluate the quality of a boundary by evaluating the elastica energy along it. In continuous terms, the elastica energy along the boundary of a region $X$ is defined as 
-
 \begin{align*}
-	E(X) = \int_{\partial X}{(\alpha + \beta \kappa^2) ds}, \quad \alpha,\beta >= 0
+  E(X) = \int_{\partial X}{(\alpha + \beta \kappa^2) ds}, \quad \text{for~} \alpha \ge 0, \beta \ge 0.
 \end{align*}
 
 We are going to use the digital version of the energy, using multigrid convergent estimators. The energy, in this case, is also multigrid convergent.
-
 \begin{align}
 	\hat{E}( D_h(X) ) = \sum_{x \in \partial D_h(X)}{ \hat{s}(x)\left(\; \alpha + \beta \hat{\kappa}_{r}^2(D_h(X),x,h) \; \right)}, 
 	\label{eq:digital-energy}
 \end{align}
+where $\partial D_h(X)$ denotes the $4$-connected boundary of $D_h(X)$. In the following we omit the grid step $h$ to simplify expressions (or, putting it differently, we assume that $X$ is rescaled by $1/h$ and we set $h=1$).
 
-where $\partial D_h(X)$ denotes the $4$-connected boundary of $D_h(X)$.
-
-A segmentation energy can be devised by including some data attachement term $g$ in \eqref{eq:digital-energy}, but we need to restrict the optimization domain to consistent regions. We cannot proper estimate length and curvature along anything different from a boundary. Let $\Omega$ to denote the digital domain and $\mathcal{T}$ the family of subsets of $\Omega$ satisfying the property
-
+A segmentation energy can be devised by including some data attachement term $g$ in \eqref{eq:digital-energy}, but we need to restrict the optimization domain to consistent regions. We cannot properly estimate length and curvature along anything different from a boundary. Let $\Omega$ be the digital domain and $\mathcal{T}$ the family of subsets of $\Omega$ satisfying the property
 \begin{align*}
 	D \in \mathcal{T} \implies D \subset \Omega \text{ and } 4B(\partial D),
 \end{align*} 
-
 where $4B(\cdot)$ is the $4$-connected closed boundary predicate. 
 
 
 For some $\gamma>0$, the segmented region $D^\star$ is defined as
-
 \begin{align}
-	D^{\star} = \argmin_{D \in \mathcal{T}}{\sum_{x \in \partial D}{ \hat{s}(x)\left(\; \alpha + \beta \hat{\kappa_{r}}^2(D,x,h) \; \right)} + \gamma \cdot g(D).}
+	D^{\star} = \argmin_{D \in \mathcal{T}}{\sum_{x \in \partial D}{ \hat{s}(x)\left(\; \alpha + \beta \hat{\kappa_{r}}^2(D,x) \; \right)} + \gamma \cdot g(D).}
 	\label{eq:ideal_optimization_energy}
 \end{align}
 
@@ -273,12 +276,10 @@ In its integer linear programming model \cite{schoenemann09}, Schoenemann restri
 \subsection{Non Zero Curvature Identification}
 
 We can use the curvature estimator to detect regions of positive curvature. Given a digital object $D$ embedded in a domain $\Omega$, we define its pixel boundary set $P(D)$ as
-
 \begin{align*}
 	P(D) = \left\{ \: x \; | \; x \in D, |\mathcal{N}_4(x) \cap D|<4 \: \right\},
 \end{align*}
-
-where $\mathcal{N}_4(x)$ denotes the $4$-adjacent neighbor set of $x$. The following optimization regions will be important in our process.
+where $\mathcal{N}_4(x)$ denotes the $4$-adjacent neighbor set of $x$ (without $x$). The following optimization regions will be important in our process.
 
 \[\arraycolsep=5pt
 \begin{array}{rlr}
@@ -289,7 +290,7 @@ where $\mathcal{N}_4(x)$ denotes the $4$-adjacent neighbor set of $x$. The follo
 \end{array}
 \]
 
-Note that our definition of the optimization region guarantee that only connected solutions are produced. The computation region is defined around $O$ for symetric issues. We proceed by minimizing the squared curvature energy along $A$ with respect to the optimization region $O$. 
+Note that our definition of the optimization region guarantees that only connected solutions are produced. The computation region is defined around $O$ for symmetric issues. We proceed by minimizing the squared curvature energy along $A$ with respect to the optimization region $O$. 
 
 \begin{align}			
 	Y^{\star} = \argmin_{Y \in \{0,1\}^{|O|}} \sum_{p \in A}{\hat{\kappa}_{r}^2(p)}.
@@ -315,7 +316,7 @@ Let $F_r(p) \subset F$ to denote the intersection set between the estimating bal
 		\hat{\kappa}_{r}^2(p) = c_1 \cdot \left( C + 2\left( |F_r(p)| - c_2 \right) \cdot \sum_{y_i \in Y_r(p)}{y_i} + \sum_{y_i \in Y_r(p)}{y_i^2} + 2 \cdot \sum_{ \substack{y_i,y_j \in Y_r(p) \\ i<j} }{y_iy_j}  \right)
 	\end{align*}
 	
-	By ignoring constant and multiplications factors and using the binary character of the variables, problem \eqref{eq:curvature_highlighting_opt_problem} is equivalent to
+	By ignoring constant and multiplication factors and using the binary character of the variables, problem \eqref{eq:curvature_highlighting_opt_problem} is equivalent to
 
 	
 \begin{align}			
@@ -345,30 +346,60 @@ We interpret positive curvature at some point $p$ as a lack of intersection poin
 
 \subsection{Digital Curvature Flow}
 
-We derive the digital curvature flow by evaluating iteractively model \eqref{eq:curvature_highlighting_simplified} with a slight modification. We extend the computation region to accomodate more level sets of the original object. As a practical consequence, the zones of high curvature are more likely to be detected, leading to a smaller number of unlabeled pixels by QPBOP.
+We derive the digital curvature flow by iteratively evaluating  model \eqref{eq:curvature_highlighting_simplified} with a slight modification. We extend the computation region to take into account more level sets of the original object. As a practical consequence, zones of high curvature are more likely to be detected, leading to a smaller number of unlabeled pixels by QPBOP.
 
 \begin{align*}
-	A = \bigcup_{i\leq2}{ \partial F^{-i} \cup \partial B^{-i} },
+	A = \bigcup_{i\leq3}{ \partial F^{-i} \cup \partial B^{-i} },
 \end{align*}
 where the $-i$ exponent means an erosion by a square of side $i$. Figure \ref{fig:opt_regions} illustrates the different regions of the optimization model. 
 
 At each flow step, the model is evaluated twice. In the second evaluation, we take care of concavities. The model is executed on $\overline{D^{+1}}$, the complement of the dilation by a square of side one, and we swap foreground and background regions. Figure \ref{fig:digital_flows} presents several digital curvature flows.
 
+Generally, best results in terms of elastica energy are achieved by using a higher number of level sets. The only exception is for the digital ball, but even for this one, the error decreases as the ball radius and level sets increases. As mentioned, the computation of the estimator in different level sets decreases the number of unlabeled pixels by QPBOP. In practice, we observe that using a ball of radius $3$ is sufficient to produce good results while achieving a reasonable running time.
+
 	\begin{figure}[!ht]
 		\center
 		\subfloat[\label{fig:flow_ball}]{%
-		\includegraphics[scale=0.025]{images/Ball.eps}
+		\includegraphics[scale=0.025]{images/flow-b3-ls3/Ball.eps}
 		}%
 		\hspace{15pt}
 		\subfloat[\label{fig:flow_triangle}]{%
-		\includegraphics[scale=0.03]{images/Triangle.eps}}%
+		\includegraphics[scale=0.03]{images/flow-b3-ls3/Triangle.eps}}%
 		\hspace{15pt}
 		\subfloat[\label{fig:flow_square}]{%
-\includegraphics[scale=0.03]{images/Square.eps}}%		
+\includegraphics[scale=0.03]{images/flow-b3-ls3/Square.eps}}%		
 		\hspace{15pt}
 		\subfloat[\label{fig:flow_flower}]{%
-\includegraphics[scale=0.025]{images/Flower.eps}}%
-		\caption{Digital curvature flow of different shapes. A total of 20 iterations were done in each flow, curves are displayed at every 2 iterations. The initial curve is in red and the end curve in blue.}
+\includegraphics[scale=0.025]{images/flow-b3-ls3/Flower.eps}}%
+
+		\subfloat[\label{fig:flow_ball}]{%
+		\includegraphics[scale=0.25]{images/flow-b5-ls5/InProduction.png}
+		}%
+		\hspace{15pt}
+		\subfloat[\label{fig:flow_triangle}]{%
+		\includegraphics[scale=0.25]{images/flow-b5-ls5/InProduction.png}}%
+		\hspace{15pt}
+		\subfloat[\label{fig:flow_square}]{%
+\includegraphics[scale=0.25]{images/flow-b5-ls5/InProduction.png}}%		
+		\hspace{15pt}
+		\subfloat[\label{fig:flow_flower}]{%
+\includegraphics[scale=0.25]{images/flow-b10-ls10/InProduction.png}}%
+
+
+		\subfloat[\label{fig:flow_ball}]{%
+		\includegraphics[scale=0.25]{images/flow-b10-ls10/InProduction.png}
+		}%
+		\hspace{15pt}
+		\subfloat[\label{fig:flow_triangle}]{%
+		\includegraphics[scale=0.25]{images/flow-b10-ls10/InProduction.png}}%
+		\hspace{15pt}
+		\subfloat[\label{fig:flow_square}]{%
+\includegraphics[scale=0.25]{images/flow-b10-ls10/InProduction.png}}%		
+		\hspace{15pt}
+		\subfloat[\label{fig:flow_flower}]{%
+\includegraphics[scale=0.25]{images/flow-b10-ls10/InProduction.png}}%
+
+		\caption{Digital curvature flow for four different shapes. A total of 20 iterations were done in each flow, curves are displayed every 2 iterations. The initial curve is in red and the end curve in blue.}
 		\label{fig:digital_flows}	
 	\end{figure}
 
@@ -376,24 +407,33 @@ At each flow step, the model is evaluated twice. In the second evaluation, we ta
 \begin{figure}[!ht]
 \center
 \begin{tabular}{l|c|c|c|c}
-	Energy/Instance & Ball & Triangle & Square & Flower\\
+	Energy/Instance & Ball (0.156) & Triangle (2.55) & Square (1.81) & Flower (4.196) \\
 	\hline
-	Initial Elastica & 0.156 & 2.55 & 1.81 & 4.196 \\
-	Final Elastica & 0.174 & 0.319 & 0.232 & 0.244
+	$\mathbf{r=3,ls=3}$ & 0.192 & 0.335 & 0.286 & 0.298\\
+	\hline
+	$r=5,ls=2$ & 0.156 & 0.556 & 0.423 & 1.477 \\
+	$r=5,ls=3$ & 0.166 & 0.375 & 0.321 & 0.364 \\	 
+	$r=5,ls=4$ & 0.174 & 0.319 & 0.232 & 0.244\\
+	$\mathbf{r=5,ls=5}$ & ? & ? & ? & ?\\	
+	\hline
+	$r=10,ls=2$ & ? & ? & ? & ?\\
+	$r=10,ls=5$ & ? & ? & ? & ?\\
+	$r=10,ls=8$ & ? & ? & ? & ?\\
+	$\mathbf{r=10,ls=10}$ & ? & ? & ? & ?		
 \end{tabular}
-\caption{Evaluation of digital elastica ($\alpha=0$) for start and end curves of the flow. Except the ball, all the elastica energies were decreased significantly.}
+\caption{Evaluation of digital elastica ($\alpha=0$) for start and end curves of the flow. Except for the ball, all the elastica energies were decreased significantly.}
 \label{tab:digital_glows_elastica_result}
 \end{figure}
 
 \subsection{Optimization Method}\label{sec:optimization_method}
 
-	Energy \eqref{eq:curvature_highlighting_simplified} is non-submodular and optimizing it is a NP-hard problem, which restrict ourselves to heuristics and approximation algorithms. The QPBO method \cite{kolmogorov07} transforms the original problem in a max-flow/min-cut formulation and returns a full optimal labeling for submodular energies. For non-submodular energies the method is guaranteed to return a partial labeling with the property that the set of labeled variables is part of an optimal solution. That property is called partial optimality. 
+	Energy \eqref{eq:curvature_highlighting_simplified} is non-submodular and optimizing it is a difficult problem, which restrict ourselves to heuristics and approximation algorithms. The QPBO method \cite{kolmogorov07} transforms the original problem in a max-flow/min-cut formulation and returns a full optimal labeling for submodular energies. For non-submodular energies the method is guaranteed to return a partial labeling with the property that the set of labeled variables is part of an optimal solution. That property is called partial optimality. 
 
-	In practice, QPBO can leave many pixels unlabeled. There exist two extensions of QPBO that soften this limitation: QPBOI (improve) and QPBOP (probe). The first is an approximation method that is guaranteed to not increase the energy, but we lost the property of partial optimality. The second is an exact method which is reported to label more variables than QPBO. We use QPBOP. The extended computation region also contributes for a higher number of labeled variables
+	In practice, QPBO can leave many pixels unlabeled. There exist two extensions of QPBO that soften this limitation: QPBOI (improve) and QPBOP (probe). The first is an approximation method that is guaranteed to not increase the energy, but we lost the property of partial optimality. The second is an exact method which is reported to label more variables than QPBO. We use QPBOP. The extended computation region also regularizes the energy and we have checked that it induces a higher number of labeled variables.
 	
 \section{Application in Image Segmentation}
 
-The digital curvature flow can be applied as a post-processing step in a image segmentation framework. We use graph cut \cite{boykov01} as segmentation method and we execute the flow for $n$ iterations. We include the graph cut data attachement term $g$ and standard length penalization $s$ to the flow energy.
+The digital curvature flow can be applied as a post-processing step in an image segmentation framework. We use graph cut \cite{boykov01} as segmentation method and we execute the flow for $n$ iterations. We include the graph cut data attachement term $g$ and standard length penalization $s$ to the flow energy.
 
 
 
@@ -408,12 +448,12 @@ The digital curvature flow can be applied as a post-processing step in a image s
 	\end{align*}
 
 
-In Figure \ref{fig:butterfly_results} we show some of the results. 
+In Figure \ref{fig:butterfly_results} we show some results. The flow clearly regularizes the contour of figures produced by segmentation via grab cut. In both figures, the flow is able to correct zones of high positive curvature and expand regions of low negative curvature, but without invading the background zone. Nonetheless, the flow does not expand zones of convexity. In addition, as we follow a local strategy, we are unable to expand some zones that clearly belongs to the segmented object, like the cow's leg.
 
 \section{Conclusion}
-The integral invariant estimator for curvature is suitable for use in optimization model in image processing and can be applied together with classical penalization terms as length and data attachement. We demonstrated its power by deriving a digital curvature flow and we showed how it can be used as a post-processing tool in an image segmentation framework. 
+We have shown that the integral invariant curvature estimator can be integrated in an optimization model and can be applied together with classical penalization terms as length and data attachement in an image processing task. We demonstrated its potential by designing a digital curvature flow that mimicks continuous flow in an accurate way. We showed then how it can be used as a post-processing tool in an image segmentation framework. 
 
-We have some directions for future work. First, optimize the code and evaluate a runtime analysis to compare with competitor methods. We also pretend to reformulate the model in \cite{schoenemann09} using the digital estimator $\hat{\kappa_r}$. We believe that we can recover better results and in a lower running time.
+We have some directions for future work. First, optimize the code and evaluate a runtime analysis to compare with competitor methods. We also pretend to reformulate the model in \cite{schoenemann09} using the digital estimator $\hat{\kappa_r}$. We believe that we can recover better results and with a lower running time.
 	
 	\begin{figure}[!ht]
 		\center
