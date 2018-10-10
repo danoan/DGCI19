@@ -355,66 +355,75 @@ where the $-i$ exponent means an erosion by a square of side $i$. Figure \ref{fi
 
 At each flow step, the model is evaluated twice. In the second evaluation, we take care of concavities. The model is executed on $\overline{D^{+1}}$, the complement of the dilation by a square of side one, and we swap foreground and background regions. Figure \ref{fig:digital_flows} presents several digital curvature flows.
 
-We observe that the choice of ball radius and level sets should consider the image scale. For example, using a too big radius might lead to a disconnected intersection zone and the accuracy of the estimator is compromissed. That explains the difference in flows in figure \ref{fig:digital_flows}. In practice, we observe that using a ball of radius $3$ is sufficient to produce good results while achieving a reasonable running time.
+We observe that the choice of ball radius (r) and level sets (ls) should consider the image scale. For example, using a too big radius might lead to a disconnected intersection zone and the accuracy of the estimator is compromissed. That explains the difference in flows in figure \ref{fig:digital_flows}. In practice, we observe that using a ball of radius $3$ is sufficient to produce good results while achieving a reasonable running time.
 
-	\begin{figure}[!ht]
+\begin{figure}[!ht]
 		\center
-		\subfloat[\label{fig:flow_ball}]{%
+		\setcounter{subfigure}{-4}			
+		\subfloat[$r=3,ls=3$]{%
+		\subfloat{%
 		\includegraphics[scale=0.025]{images/flow-b3-ls3/Ball.eps}
 		}%
 		\hspace{15pt}
-		\subfloat[\label{fig:flow_triangle}]{%
+		\subfloat{%
 		\includegraphics[scale=0.03]{images/flow-b3-ls3/Triangle.eps}}%
 		\hspace{15pt}
-		\subfloat[\label{fig:flow_square}]{%
+		\subfloat{%
 \includegraphics[scale=0.03]{images/flow-b3-ls3/Square.eps}}%		
-		\hspace{15pt}
-		\subfloat[\label{fig:flow_flower}]{%
+		\hspace{15pt}	
+		\subfloat{%
 \includegraphics[scale=0.025]{images/flow-b3-ls3/Flower.eps}}%
+		}
 
-		\subfloat[\label{fig:flow_ball}]{%
+		\setcounter{subfigure}{-3}			
+		\subfloat[$r=5,ls=5$]{
+		\subfloat{%
 		\includegraphics[scale=0.025]{images/flow-b5-ls5/Ball.eps}
 		}%
 		\hspace{15pt}
-		\subfloat[\label{fig:flow_triangle}]{%
+		\subfloat{%
 		\includegraphics[scale=0.03]{images/flow-b5-ls5/Triangle.eps}}%
 		\hspace{15pt}
-		\subfloat[\label{fig:flow_square}]{%
+		\subfloat{%
 \includegraphics[scale=0.03]{images/flow-b5-ls5/Square.eps}}%		
 		\hspace{15pt}
-		\subfloat[\label{fig:flow_flower}]{%
-%% \includegraphics[scale=0.025]{images/Flower.eps}}%
-%% 		\caption{Digital curvature flow for four different shapes. A total of 20 iterations were done in each flow, curves are displayed every 2 iterations. The initial curve is in red and the end curve in blue.}
+		\subfloat{%
 \includegraphics[scale=0.025]{images/flow-b5-ls5/Flower.eps}}%
+		}
 
-
-		\subfloat[\label{fig:flow_ball}]{%
+		\setcounter{subfigure}{-2}			
+		\subfloat[$r=10,ls=10$]{
+		\subfloat{%
 		\includegraphics[scale=0.025]{images/flow-b10-ls10/Ball.eps}
 		}%
 		\hspace{15pt}
-		\subfloat[\label{fig:flow_triangle}]{%
+		\subfloat{%
 		\includegraphics[scale=0.03]{images/flow-b10-ls10/Triangle.eps}}%
 		\hspace{15pt}
-		\subfloat[\label{fig:flow_square}]{%
+		\subfloat{%
 \includegraphics[scale=0.03]{images/flow-b10-ls10/Square.eps}}%		
 		\hspace{15pt}
-		\subfloat[\label{fig:flow_flower}]{%
+		\subfloat{%
 \includegraphics[scale=0.025]{images/flow-b10-ls10/Flower.eps}}%
+		}
 
-		\subfloat[\label{fig:flow_ball}]{%
+		\setcounter{subfigure}{-1}			
+		\subfloat[$r=5,ls=5$ ($1.5\times$ scaling)]{
+		\subfloat{%
 		\includegraphics[scale=0.016]{images/flow-b5-ls5-scaled/Ball.eps}
 		}%
 		\hspace{15pt}
-		\subfloat[\label{fig:flow_triangle}]{%
+		\subfloat{%
 		\includegraphics[scale=0.02]{images/flow-b5-ls5-scaled/Triangle.eps}}%
 		\hspace{15pt}
-		\subfloat[\label{fig:flow_square}]{%
+		\subfloat{%
 \includegraphics[scale=0.02]{images/flow-b5-ls5-scaled/Square.eps}}%		
 		\hspace{15pt}
-		\subfloat[\label{fig:flow_flower}]{%
+		\subfloat{%
 \includegraphics[scale=0.016]{images/flow-b5-ls5-scaled/Flower.eps}}%
+		}
 
-		\caption{Digital curvature flow for four different shapes. A total of 20 iterations were done for the first two flows and 7 iterations for the third. The last flow has the same parameters and iterations of the second flow, but a different image scale. Curves are displayed every 2 iterations. The initial curve is in red and the end curve in blue.}
+		\caption{Digital curvature flow for four different shapes. A total of 20 iterations were done for each flow, except for (c) (7 iterations). Curves are displayed every 2 iterations. The initial curve is in red and the end curve in blue.}
 		\label{fig:digital_flows}	
 	\end{figure}
 
