@@ -372,13 +372,13 @@ Energy \eqref{eq:curvature_highlighting_simplified} is non-submodular, and minim
 		\hspace{40pt}
 		\subfloat[\label{fig:opt_regions}]{%
 \includegraphics[scale=1.0]{images/opt-regions.png}}%		
-		\caption{Figure (a): White pixels denote variables labeled as one by QPBOP, while light-gray pixels variables labeled zero; Figure (b): Inverted labeling; Figure (c): Regions of interest: Background (black); Foreground (dark gray); Computation (light gray); and Optimization (white) regions.}	
+		\caption{Figure (a): White pixels denote variables labeled as one by QPBOP, while light gray pixels variables are labeled zero; Figure (b): Inverted labeling; Figure (c): Regions of interest: Background (black); Foreground (dark gray); Computation (light gray); and Optimization (white) regions.}	
 					
 	\end{figure}
 
         We interpret positive curvature at some point $p$ as a shortage of intersection points between the digital object
         and the estimating ball. The curvature can be reduced if the estimating ball is pulled towards the interior of the
-        digital object, which is done by removing the highlighted pixels in figure \ref{fig:naive_solution}. In different words, the solution given by the optimization method is inversed. Points with
+        digital object, which is done by removing the highlighted pixels in figure \ref{fig:naive_solution}. In other words, the partial labeling is inverted, and unlabeled pixels remain unchanged. Points with
         negative curvature are detected similarly if we evaluate the model on the digital object complement.
 
 \subsection{Digital Curvature Flow}
@@ -510,7 +510,7 @@ Function $F$ is submodular if and only if \cite{kolmogorov04}
 \end{align*}
 
 Energy \eqref{eq:curvature_highlighting_simplified} is non-submodular and optimizing it is a difficult problem, which
-constrained us to use heuristics and approximation algorithms. The QPBO method \cite{kolmogorov07} transforms the
+constrained us to use heuristics and approximation algorithms. The QPBO method \cite{rother07} transforms the
 original problem in a max-flow/min-cut formulation and returns a full optimal labeling for submodular energies. For
 non-submodular energies the method is guaranteed to return a partial labeling with the property that the set of labeled
 variables is part of an optimal solution. That property is called partial optimality.
