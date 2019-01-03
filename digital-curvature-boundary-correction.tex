@@ -503,10 +503,10 @@ Let $F$ be a function of $n$ binary variables, i.e.
 F(y_1,\cdots, y_n) = \sum_{i}{F_i(y_i)} + \sum_{i < j}{F_{i,j}(y_i,y_j)}
 \end{align*}
 
-Function $F$ is submodular if and only if \cite{kolmogorov04}
+Function $F$ is submodular if and only if the following inequality holds for each pairwise term $F_{i,j}$ \cite{kolmogorov04}
 
 \begin{align*}
-	F_{i,j}(0,0) + F_{i,j}(1,1) \leq F_{i,j}(0,1) + F_{i,j}(1,0)
+	\quad F_{i,j}(0,0) + F_{i,j}(1,1) \leq F_{i,j}(0,1) + F_{i,j}(1,0)
 \end{align*}
 
 Energy \eqref{eq:curvature_highlighting_simplified} is non-submodular and optimizing it is a difficult problem, which
