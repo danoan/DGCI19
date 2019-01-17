@@ -341,16 +341,10 @@ We expand the squared curvature esimator for a single point $p \in A$ using \eqr
 Let $F_r(p) \subset F$ denote the intersection set between the estimating ball applied at $p$ with the foreground region. The subset $Y_r(p) \subset Y$ is defined  analogously. Substituting $\sigma_{D,r}(p) = |F_r(p)| + \sum_{y_i \in Y_r(p)}{y_i}$, we obtain
 
 	\begin{align*}
-		\hat{\kappa}_{r}^2(p) &= c_1 \cdot \left( \; c_2^2 - 2c_2 \cdot |F_r(p)| + |F_r(p)|^2 + 2\left( |F_r(p)| - c_2 \right) \cdot \sum_{y_i \in Y_r(p)}{y_i}  + \left( \sum_{y_i \in Y_r(p)}{y_i} \; \right) ^2 \right) \\[1em]
+		\hat{\kappa}_{r}^2(p) = c_1 \cdot \left( C + 2\left( |F_r(p)| - c_2 \right) \cdot \sum_{y_i \in Y_r(p)}{y_i} + \sum_{y_i \in Y_r(p)}{y_i^2} + 2 \cdot \sum_{ \substack{y_i,y_j \in Y_r(p) \\ i<j} }{y_iy_j}  \right),
 	\end{align*}
 	
-	Packing constants $C=c_2^2 - 2c_2 \cdot |F_r(p)| + |F_r(p)|^2$.
-	
-	\begin{align*}
-		\hat{\kappa}_{r}^2(p) = c_1 \cdot \left( C + 2\left( |F_r(p)| - c_2 \right) \cdot \sum_{y_i \in Y_r(p)}{y_i} + \sum_{y_i \in Y_r(p)}{y_i^2} + 2 \cdot \sum_{ \substack{y_i,y_j \in Y_r(p) \\ i<j} }{y_iy_j}  \right)
-	\end{align*}
-	
-	By ignoring constants and multiplication factors and using the binary character of the variables, problem \eqref{eq:curvature_highlighting_opt_problem} is equivalent to
+	where $C=c_2^2 - 2c_2 \cdot |F_r(p)| + |F_r(p)|^2$. By ignoring constants and multiplication factors and using the binary character of the variables, problem \eqref{eq:curvature_highlighting_opt_problem} is equivalent to
 
 	
 \begin{align}			
